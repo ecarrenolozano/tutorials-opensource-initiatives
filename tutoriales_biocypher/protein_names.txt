@@ -1,0 +1,11 @@
+source_genesymbol	UniprotID
+SPI1			P17947
+SMARCC1			Q92922
+Gtf2b			P62915
+Egr1			P08046
+Rheb			Q921J2
+Myc			P01108
+CASP7			P55210
+Cebpa			P53566
+ZNF318			Q5VUA4
+
