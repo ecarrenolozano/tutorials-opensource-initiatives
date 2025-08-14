@@ -171,6 +171,9 @@ In this case, all other input edges that do not carry this `binding` label are i
 
 
 #### Step 2. Create an adapter
+BioCypher is like a toolkit that helps users combine and use information from different biomedical sources without repeating the same work. Instead of everyone building their own custom solutions from scratch, BioCypher provides ready-made “adapters” that can connect to different databases and ontologies. You can also build your own adapter.
+
+
 
 #### Step 4. Create a knowledge graph script
 
