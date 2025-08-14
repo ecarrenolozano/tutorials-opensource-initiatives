@@ -126,7 +126,7 @@ TODO: [Edwin] explain a little bit about `preferred_id` key
 ```yaml
     input_label: uniprot_protein
 ```
-The adapter reads the input data stream and output the tuples for BioCypher to take care. `input_label` key indicates which label to expect in the input tuple for each class in the graph and all other input entities that do not carry this label are ignored as long as they are not in the schema configuration.
+The adapter reads the input data stream and output the node tuples with format `[id,label,properties]` for BioCypher to take care. ID and label are mandatory while properties are optional. In this case, we didn't configure the properties for node. `input_label` key indicates which `label` to expect in the node tuple and all other input nodes that do not carry this label are ignored as long as they are not in the schema configuration.
 
 The second block is the relationship settings. In this case, it starts with `protein protein interaction:` since we import protein interactions in this case.
 
@@ -135,6 +135,25 @@ The second block is the relationship settings. In this case, it starts with `pro
 
 ```
 the `is_a` key is used to define inheritance
+```yaml
+    represented_as: edge
+```
+here the `represented_as` is `edge` because this block configures the relationship.
+```yaml
+    input_label: protein_protein_interaction
+```
+The adapter reads the input data stream and output the edge tuples with format `[id,source_id,target_id,edge_label,properties]` for BioCypher to take care. IDs and label are mandatory while properties are optional.`input_label` key indicates which `edge_label` to expect in the edge tuple and all other input edges that do not carry this label are ignored as long as they are not in the schema configuration.
+
+```yaml
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
+        consensus_stimulation: bool
+        consensus_inhibition: bool
+```
+properties are optional and can include different types of information on the entities.
+
 
 #### Step 2. Create an adapter
 
