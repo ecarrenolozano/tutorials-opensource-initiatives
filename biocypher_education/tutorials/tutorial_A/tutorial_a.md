@@ -96,6 +96,7 @@ Important
 TODO: [Edwin] provide a link to the data possible in Zenodo?
 
 ## Section 2. Graph Modeling
+### Graph Modeling
 TODO: [Edwin] add a example about the final graph
 
 By looking the data we can notice there are two columns called `source` and `target`, they represent proteins. It means each row represent the interaction between a `source` protein and a `target` protein. So for now, our graph could look like this:
@@ -148,6 +149,35 @@ Finally, we can create a more refined graph with the data we have in our dataset
   <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="500"/>
 </div>
 
+### Exercise 1. Example of a graph we expect with our data
+
+```mermaid
+graph LR
+    SOD1((SOD1))   -- binding --> EGFR((EGFR))
+    CDK1((CDK1))   -- activation --> P53((P53))
+    MYC((MYC))     -- phosporylation --> GAPDH((GAPDH))
+    MTOR((MTOR))   -- ubiquitination --> NFKB1((NFKB1))
+    NFKB1((NFKB1)) -- activation --> CDK1((CDK1))
+    MAPK1((MAPK1)) -- ubiquitination --> HSP90((HSP90))
+    P53((P53))     -- ubiquitination --> CREB1((CREB1))
+    HSP90((HSP90)) -- activation --> APP((APP))
+    HSP90((HSP90)) -- ubiquitination --> RHOA((RHOA))
+    SOD1((SOD1))   -- inhibition --> P53((P53))
+    AKT1((AKT1))   -- ubiquitination --> HSP90((HSP90))
+    HSP90((HSP90)) -- ubiquitination --> MYC((MYC))
+    MAPK1((MAPK1)) -- ubiquitination --> BRCA1((BRCA1))
+    NFKB1((NFKB1)) -- inhibition --> RHOA((RHOA))
+    NFKB1((NFKB1)) -- phosphorylation --> APP((APP))
+    HSP90((HSP90)) -- binding --> GAPDH((GAPDH))
+    GAPDH((GAPDH)) -- activation --> P53((P53))
+    AKT1((AKT1))   -- phosphorylation --> P53((P53))
+    GAPDH((GAPDH)) -- activation --> APP((APP))
+    P53((P53))     -- activation --> MAPK1((MAPK1))
+    P53((P53))     -- ubiquitination --> CREB1((CREB1))
+    MYC((MYC))     -- phosphorylation --> GAPDH((GAPDH))
+    EGFR((EGFR))   -- binding --> SOD1((SOD1))
+
+```
 
 ## Section 3. Graph creation with `BioCypher`
 
