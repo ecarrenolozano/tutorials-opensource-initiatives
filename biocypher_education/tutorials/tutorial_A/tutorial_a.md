@@ -90,19 +90,51 @@ Now we use the following proteins import `schema_config.yaml` as an example:
 ```yaml
 protein:
     represented_as: node
+    preferred_id: uniprot
     input_label: uniprot_protein
 
 protein protein interaction:
     is_a: pairwise molecular interaction
-    represented as edge: edge
+    represented_as: edge
+    input_label: protein_protein_interaction
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
+        consensus_stimulation: bool
+        consensus_inhibition: bool
+
+binding:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: binding
 ```
 TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
 
-The first block is the node settings, which starts with `protein:` since we import proteins in this case.
+The first block is the node settings. In this case, it starts with `protein:` since we import proteins.
 
 ```yaml
+    represented_as: node
+```
+The `represented_as` key tells BioCypher in which way each entity should be represented in the graph, it's either `node` or `edge`
+
+```yaml
+    preferred_id: uniprot
+```
+TODO: [Edwin] explain a little bit about `preferred_id` key
+```yaml
+    input_label: uniprot_protein
+```
+The adapter reads the input data stream and output the tuples for BioCypher to take care. `input_label` key indicates which label to expect in the input tuple for each class in the graph and all other input entities that do not carry this label are ignored as long as they are not in the schema configuration.
+
+The second block is the relationship settings. In this case, it starts with `protein protein interaction:` since we import protein interactions in this case.
+
+```yaml
+    is_a: pairwise molecular interaction
 
 ```
+the `is_a` key is used to define inheritance
 
 #### Step 2. Create an adapter
 
