@@ -154,6 +154,21 @@ The adapter reads the input data stream and output the edge tuples with format `
 ```
 properties are optional and can include different types of information on the entities.
 
+The third block is a child relationship inherits from `protein protein interaction`. Sometimes, explicit designation of properties requires a lot of maintenance work, particularly for classes with many properties. In these cases, it may be more convenient to inherit properties from a parent class. 
+```yaml
+    is_a: protein protein interaction
+    inherit_properties: true
+```
+This is done by defining inheritance via the `is_a` key in the child class configuration and setting the `inherit_properties` key to `true`.
+```yaml
+    represented_as: edge
+```
+here the `represented_as` is `edge` because this block configures the relationship.
+```yaml
+    input_label: binding
+```
+In this case, all other input edges that do not carry this `binding` label are ignored as long as they are not in the schema configuration.
+
 
 #### Step 2. Create an adapter
 
