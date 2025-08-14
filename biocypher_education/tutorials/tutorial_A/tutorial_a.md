@@ -45,6 +45,7 @@ git commit -m "Initial commit"
 poetry install
 ```
 
+
 **Tip:** If you have trouble with Poetry or Python, check the official documentation or use your system's package manager to install them.
 
 **Check your setup:**
@@ -54,22 +55,107 @@ poetry run python --version
 ```
 You should see your Python version (3.10 or higher).
 
-### Section 1. Exploratory Data Analysis
-TODO: [Edwin] add a description about the dummy dataset we are going to use.
+## Section 1. Exploratory Data Analysis
+
+For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/records/16745602) that contains information about the interaction between proteins. First, download the dataset:
+
+```bash
+mkdir -p ./data/in/
+curl -o ./data/in/synthetic_protein_interactions.tsv https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv
+```
+
+Now, let's explore the dataset using pandas. Open a Python environment (Jupyter Notebook, VS Code, or a Python script) and run the following code:
+
+```python
+import pandas as pd
+
+# Load the dataset
+df = pd.read_csv('./data/in/synthetic_protein_interactions.tsv', sep='\t')
+
+# Show the first few rows
+display(df.head())
+
+# Get basic info about the dataset
+df.info()
+
+# Check for missing values
+print(df.isnull().sum())
+
+# Show summary statistics for numeric columns
+print(df.describe())
+
+# Show unique protein names (assuming columns are 'protein_a' and 'protein_b')
+print('Unique proteins in column protein_a:', df['protein_a'].nunique())
+print('Unique proteins in column protein_b:', df['protein_b'].nunique())
+
+```
+
+Important
+
 
 TODO: [Edwin] provide a link to the data possible in Zenodo?
 
-### Section 2. Graph Modeling
+## Section 2. Graph Modeling
 TODO: [Edwin] add a example about the final graph
 
-### Section 3. Graph creation with `BioCypher`
+By looking the data we can notice there are two columns called `source` and `target`, they represent proteins. It means each row represent the interaction between a `source` protein and a `target` protein. So for now, our graph could look like this:
+
+<div align="center">
+  <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="400"/>
+</div>
+
+Can we improve the graph? Yes, we could. This is why undestanding the data is crucial to build any graph. If we put attention to the other columns in the table, we can notice the following:
+
+- There are columns `source` and `target`, they can represent **nodes**.
+
+- Each protein in the `source` column has properties such as:
+  - `source_genesymbol`
+  - `ncbi_tax_id_source`
+  - `entity_type_source`
+
+- Each protein in the `target` column has properties such as:
+  - `target_genesymbol`
+  - `ncbi_tax_id_target`
+  - `entity_type_target`
+
+<div align="center">
+  <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="400"/>
+</div>
+
+
+We know that a `source` protein interacts with a `target` protein, but do we know how? 
+
+
+The remaining column in the table contain properties about the interaction between proteins. 
+
+Properties interactions
+- `is_directed`
+- `is_stimulation`
+- `is_inhibition`
+- `consensus direction`
+- `consensus inhibition`
+- `type`
+
+We are ready to model our first version of our graph. It is like follows:
+
+<div align="center">
+  <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="400"/>
+</div>
+
+Finally, we can create a more refined graph with the data we have in our dataset. 
+
+<div align="center">
+  <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="500"/>
+</div>
+
+
+## Section 3. Graph creation with `BioCypher`
 
 #### Step 1. Configuration
 
 ##### Configure `BioCypher` behavior
 TODO: [Shuangshuang] explain a little bit how we are going to configure BioCypher for this example:
-
-BioCypher includes a default set of configuration parameters(you can see in [Default Configuration](https://biocypher.org/BioCypher/reference/biocypher-config/#default-configuration)), which you can overwrite them by creating a `biocypher_config.yaml` file in the root directory or the `config` directory of your project. You only need to specify the ones you wish to override from default. 
+BioCypher includes a default set of configuration parameters, which you can overwrite them by creating a `biocypher_config.yaml` file in the root directory or the `config` directory of your project. You only need to specify the ones you wish to override from default. 
 Now we use the following `biocypher_config.yaml` as an example:
 ```yaml
 biocypher:
@@ -127,16 +213,11 @@ Whether to skip relationships with missing endpoints
 ```
 Prefix for the import command binary (optional)
 
-For more configuration parameters for the Settings, please check [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/)
+The default configuration that comes with BioCypher and more configuration parameters for the Settings are listed in [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/)
 
 
 ##### Create a schema for your graph
 TODO: [Shuangshuang] explain a little bit how to produce this schema based on data and modeling section
-
-Except the [BioCypher configuration](#configure-biocypher-behavior) we mentioned in the above, there is another Schema configuration to configure the BioCypher graph structure with YAML file, which is named as `schema_config.yaml`.
-
-Now we use the following proteins import `schema_config.yaml` as an example:
-
 ```yaml
 protein:
     represented_as: node
@@ -145,13 +226,6 @@ protein:
 protein protein interaction:
     is_a: pairwise molecular interaction
     represented as edge: edge
-```
-TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
-
-The first block is the node settings, which starts with `protein:` since we import proteins in this case.
-
-```yaml
-
 ```
 
 #### Step 2. Create an adapter
