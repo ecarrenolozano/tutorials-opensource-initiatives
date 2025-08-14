@@ -18,7 +18,8 @@ TODO: [Edwin] add a example about the final graph
 
 ##### Configure `BioCypher` behavior
 TODO: [Shuangshuang] explain a little bit how we are going to configure BioCypher for this example:
-BioCypher includes a default set of configuration parameters, which you can overwrite them by creating a `biocypher_config.yaml` file in the root directory or the `config` directory of your project. You only need to specify the ones you wish to override from default. 
+
+BioCypher includes a default set of configuration parameters(you can see in [Default Configuration](https://biocypher.org/BioCypher/reference/biocypher-config/#default-configuration)), which you can overwrite them by creating a `biocypher_config.yaml` file in the root directory or the `config` directory of your project. You only need to specify the ones you wish to override from default. 
 Now we use the following `biocypher_config.yaml` as an example:
 ```yaml
 biocypher:
@@ -76,11 +77,16 @@ Whether to skip relationships with missing endpoints
 ```
 Prefix for the import command binary (optional)
 
-The default configuration that comes with BioCypher and more configuration parameters for the Settings are listed in [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/)
+For more configuration parameters for the Settings, please check [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/)
 
 
 ##### Create a schema for your graph
 TODO: [Shuangshuang] explain a little bit how to produce this schema based on data and modeling section
+
+Except the [BioCypher configuration](#configure-biocypher-behavior) we mentioned in the above, there is another Schema configuration to configure the BioCypher graph structure with YAML file, which is named as `schema_config.yaml`.
+
+Now we use the following proteins import `schema_config.yaml` as an example:
+
 ```yaml
 protein:
     represented_as: node
@@ -89,6 +95,13 @@ protein:
 protein protein interaction:
     is_a: pairwise molecular interaction
     represented as edge: edge
+```
+TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
+
+The first block is the node settings, which starts with `protein:` since we import proteins in this case.
+
+```yaml
+
 ```
 
 #### Step 2. Create an adapter
