@@ -15,6 +15,7 @@ By the end of this tutorial, you will be able to:
 
 1. Poetry.
 2. Python >= 3.10
+3. Git 
 
 ## Setup
 
@@ -44,7 +45,6 @@ git commit -m "Initial commit"
 ```bash
 poetry install
 ```
-
 
 **Tip:** If you have trouble with Poetry or Python, check the official documentation or use your system's package manager to install them.
 
@@ -89,11 +89,6 @@ print('Unique proteins in column protein_a:', df['protein_a'].nunique())
 print('Unique proteins in column protein_b:', df['protein_b'].nunique())
 
 ```
-
-Important
-
-
-TODO: [Edwin] provide a link to the data possible in Zenodo?
 
 ## Section 2. Graph Modeling
 ### Graph Modeling
@@ -181,79 +176,59 @@ graph LR
 
 ## Section 3. Graph creation with `BioCypher`
 
-#### Step 1. Configuration
+We aim to create a knowledge graph using the data we found in the .csv. Let's recap our exercise:
 
-##### Configure `BioCypher` behavior
-TODO: [Shuangshuang] explain a little bit how we are going to configure BioCypher for this example:
-BioCypher includes a default set of configuration parameters, which you can overwrite them by creating a `biocypher_config.yaml` file in the root directory or the `config` directory of your project. You only need to specify the ones you wish to override from default. 
-Now we use the following `biocypher_config.yaml` as an example:
-```yaml
-biocypher:
-  offline: true
-  debug: false
-  schema_config_path: config/schema_config.yaml
-  cache_directory: .cache
+- Create a **graph** with the following characteristics:
+  - One node type: `Protein`.
+  - Five edge types: `activation`, `binding`, `inhibition`, `phosphorylation`, `ubiquitination`.
+- Each **node** has properties:
+  - *genesymbol*
+  - *ncbi_tax_id*
+  - *entity_type*
+  
+- Each **edge** has properties:
+  - *is_directed*
+  - *is_stimulation*
+  - *is_inhibition*
+  - *consensus_direction*
+  - *consensus_inhibition*
 
-neo4j:
-  delimiter: '\t'
-  array_delimiter: "|"
-  skip_duplicate_nodes: true
-  skip_bad_relationships: true
-  import_call_bin_prefix: /usr/bin/
-```
-The first block is the BioCypher Core Settings, which starts with `biocypher:`
+- We must export the Knowledge Graph to Neo4j.
 
-```yaml
-  offline: true
-```
-Whether to run in offline mode (no running DBMS or in-memory object)
-```yaml
-  debug: false
-```
-Whether to enable debug logging
-```yaml
-  schema_config_path: config/schema_config.yaml
-```
-Path to the schema configuration file
-```yaml
-  cache_directory: .cache
-```
-Directory for cache files
+We can divide the complete process in three sections called:
+1. Configuration.
+  - Schema configuration.
+  - BioCypher configuration 
 
-The second block is the Database Management System Settings, which starts with the name of the DBMS, in this case it's `neo4j:`
+2. Adapter creation.
+  - read/connect to input data.
+  - process data.
+  - stream processed data.
 
-```yaml
-  delimiter: '\t'
-```
-Field delimiter for CSV import files
-```yaml
-  array_delimiter: "|"
-```
-Delimiter for array values
-```yaml
-  skip_duplicate_nodes: true
-```
-Whether to skip duplicate nodes during import
-```yaml
-  skip_bad_relationships: true
-```
-Whether to skip relationships with missing endpoints
-```yaml
-  import_call_bin_prefix: /usr/bin/
-```
-Prefix for the import command binary (optional)
-
-The default configuration that comes with BioCypher and more configuration parameters for the Settings are listed in [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/)
+3. Knowledge Graph script.
 
 
-##### Create a schema for your graph
-TODO: [Shuangshuang] explain a little bit how to produce this schema based on data and modeling section
+### Step 1. Configuration
+
+#### Create a schema for your graph
+
+**Rationale:** the schema file allows us to define the skeleton for our knowledge graph. Nodes, edges, properties are defined here.
+
+**File: `schema_config.yaml`**
 ```yaml
+#-------------------------------------------------------------------
+#-------------------------      NODES      -------------------------
+#-------------------------------------------------------------------
+#=========    PARENT NODES
 protein:
     represented_as: node
     preferred_id: uniprot
     input_label: uniprot_protein
 
+#-------------------------------------------------------------------
+#------------------      RELATIONSHIPS (EDGES)     -----------------
+#-------------------------------------------------------------------
+#=========    PARENT EDGES
 protein protein interaction:
     is_a: pairwise molecular interaction
     represented_as: edge
@@ -262,81 +237,275 @@ protein protein interaction:
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
+        consensus_stimulation: boo
+        
+#=========    INHERITED EDGES
+binding:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: binding
+
+# ...rest of schema_config.yaml omitted for brevity...
+```
+
+##### Nodes
+
+`protein:` this top-key, in the .yaml snippet, identifies our entity and connects to the ontological backbone.
+
+
+| key              | value             | description                                                                                                                                                               |
+| ---------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `represented_as` | `node`            | tells BioCypher in which way each entity should be represented in the graph, in this case as a node.                                                                      |
+| `preferred_id`   | `uniprot`         | defines a namespace for our proteins, in our particular case all the proteins follows the uniprot convention (a 5-character string of numbers and letters, ie. P00533)    |
+| `input_label`    | `uniprot_protein` | indicates which label to expect in the node tuple and all other input nodes that do not carry this label are ignored as long as they are not in the schema configuration. |
+
+For more information about which other keywords you can use to configure your nodes in the schema file consult [Fields reference](https://biocypher.org/BioCypher/reference/schema-config/#fields-reference).
+
+TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
+
+
+##### Edges (relationships)
+
+As we saw in the Figure 4. Graph Model with five interactions, each edge has the same field properties (`is_directed`, `is_consensus`, etc.). In this point we have two options to define the edges:
+
+- Option 1: to create each edge and explicitly define the same property fields for each edge.
+
+```yaml
+#-------------------------------------------------------------------
+#------------------      RELATIONSHIPS (EDGES)     -----------------
+#-------------------------------------------------------------------
+activation:
+    is_a: pairwise molecular interaction
+    represented_as: edge
+    input_label: protein_protein_interaction
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
         consensus_stimulation: bool
-        consensus_inhibition: bool
+
+binding:
+    is_a: pairwise molecular interaction
+    represented_as: edge
+    input_label: protein_protein_interaction
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
+        consensus_stimulation: bool
+
+# ...rest of schema_config.yaml omitted for brevity...
+```
+
+- Option 2: to create a base edge with the properties, then we can create edges that inherit the behavior of this base edge. With this we can save some lines of code and avoid repeatition. Imagine, you have more than 20 edges, option 1 probably is not a good idea for that case.
+
+```yaml
+#-------------------------------------------------------------------
+#------------------      RELATIONSHIPS (EDGES)     -----------------
+#-------------------------------------------------------------------
+#====   BASE EDGE or PARENT EDGE
+protein protein interaction:
+    is_a: pairwise molecular interaction
+    represented_as: edge
+    input_label: protein_protein_interaction
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
+        consensus_stimulation: boo
+        
+#====   INHERITED EDGES
+activation:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: activation
 
 binding:
     is_a: protein protein interaction
     inherit_properties: true
     represented_as: edge
     input_label: binding
+
+# ...rest of schema_config.yaml omitted for brevity...
 ```
-TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
 
-The first block is the node settings. In this case, it starts with `protein:` since we import proteins.
+Let's explain the keys and values for the second case (Option 2), because we are going to use the second option approach.
 
+**Base Edge**
+`protein protein interaction:` this top-key, in the .yaml snippet, identifies our edge entity.
+
+| key              | value                                             | description                                                                                                    |
+| ---------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `is_a`           | `pairwise molecular interaction`                  | defines the type of entity based on the ontology                                                               |
+| `represented_as` | `edge`                                            | defines explicitly, this is an edge                                                                            |
+| `input_label`    | `protein_protein_interaction`                     | defines a namespace for our relationships                                                                      |
+| `properties`     | *property*: *datatype* (i.e. `is_directed: bool`) | this key holds all the properties associated to this edge, each property has a name and a datatype associated. |
+
+
+**Inherited Edges**
+`activation:` this top-key, in the .yaml snippet, identifies our edge entity.
+
+| key                  | value                         | description                                                                                           |
+| -------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `is_a`               | `protein protein interaction` | defines the type of entity based, in this case is child of the base edge we defined previosly         |
+| `inherit_properties` | `true`                        | defines if we should inherit all the properties defined in the base edge                              |
+| `represented_as`     | `edge`                        | BioCypher will treat this entity (`activation`) as an edge.                                           |
+| `input_label`        | `binding`                     | specifies the expected edge label; edges without this label are ignored unless defined in the schema. |
+
+
+Exercise: Complete the `schema_config.yaml`
+
+Answer:
+
+**File: `schema_config.yaml`**
 ```yaml
+#-------------------------------------------------------------------
+#-------------------------      NODES      -------------------------
+#-------------------------------------------------------------------
+#====   PARENT NODES
+protein:
     represented_as: node
-```
-The `represented_as` key tells BioCypher in which way each entity should be represented in the graph, it's either `node` or `edge`
-
-```yaml
     preferred_id: uniprot
-```
-TODO: [Edwin] explain a little bit about `preferred_id` key
-```yaml
     input_label: uniprot_protein
-```
-The adapter reads the input data stream and output the node tuples with format `[id,label,properties]` for BioCypher to take care. ID and label are mandatory while properties are optional. In this case, we didn't configure the properties for node. `input_label` key indicates which `label` to expect in the node tuple and all other input nodes that do not carry this label are ignored as long as they are not in the schema configuration.
 
-The second block is the relationship settings. In this case, it starts with `protein protein interaction:` since we import protein interactions in this case.
-
-```yaml
+#-------------------------------------------------------------------
+#------------------      RELATIONSHIPS (EDGES)     -----------------
+#-------------------------------------------------------------------
+#====   PARENT EDGES
+protein protein interaction:
     is_a: pairwise molecular interaction
-
-```
-the `is_a` key is used to define inheritance
-```yaml
     represented_as: edge
-```
-here the `represented_as` is `edge` because this block configures the relationship.
-```yaml
     input_label: protein_protein_interaction
-```
-The adapter reads the input data stream and output the edge tuples with format `[id,source_id,target_id,edge_label,properties]` for BioCypher to take care. IDs and label are mandatory while properties are optional.`input_label` key indicates which `edge_label` to expect in the edge tuple and all other input edges that do not carry this label are ignored as long as they are not in the schema configuration.
-
-```yaml
     properties:
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
-        consensus_stimulation: bool
-        consensus_inhibition: bool
-```
-properties are optional and can include different types of information on the entities.
-
-The third block is a child relationship inherits from `protein protein interaction`. Sometimes, explicit designation of properties requires a lot of maintenance work, particularly for classes with many properties. In these cases, it may be more convenient to inherit properties from a parent class. 
-```yaml
+        consensus_stimulation: boo
+        
+#====   INHERITED EDGES
+activation:
     is_a: protein protein interaction
     inherit_properties: true
-```
-This is done by defining inheritance via the `is_a` key in the child class configuration and setting the `inherit_properties` key to `true`.
-```yaml
     represented_as: edge
-```
-here the `represented_as` is `edge` because this block configures the relationship.
-```yaml
+    input_label: activation
+
+binding:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
     input_label: binding
+
+inhibition:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: inhibition
+
+phosphorylation:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: phosphorylation
+
+ubiquitination:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: ubiquitination
+
 ```
-In this case, all other input edges that do not carry this `binding` label are ignored as long as they are not in the schema configuration.
+
+#### Configure `BioCypher` behavior
+
+**Rationale:** The purpose of writing a `biocypher_config.yaml` is to define how BioCypher should operate for your project—specifying settings for data import, graph creation, and database interaction—all in one place for clarity and easy customization.
 
 
-#### Step 2. Create an adapter
-BioCypher is like a toolkit that helps users combine and use information from different biomedical sources without repeating the same work. Instead of everyone building their own custom solutions from scratch, BioCypher provides ready-made “adapters” that can connect to different databases and ontologies. You can also build your own adapter.
+**File: `biocypher_config.yaml`**
+```yaml
+#---------------------------------------------------------------
+#--------        BIOCYPHER GENERAL CONFIGURATION        --------
+#---------------------------------------------------------------
+biocypher:
+  offline: true
+  debug: false
+  schema_config_path: config/schema_config.yaml
+  cache_directory: .cache
+
+#----------------------------------------------------
+#--------        OUTPUT CONFIGURATION        --------
+#----------------------------------------------------
+neo4j:
+  delimiter: '\t'
+  array_delimiter: '|'
+  skip_duplicate_nodes: true
+  skip_bad_relationships: true
+  import_call_bin_prefix: /usr/bin/
+```
 
 
+The first block is the BioCypher Core Settings, which starts with `biocypher:`
 
-#### Step 4. Create a knowledge graph script
+| key                  | value                       | description                                                          |
+| -------------------- | --------------------------- | -------------------------------------------------------------------- |
+| `offline`            | `true`                      | Whether to run in offline mode (no running DBMS or in-memory object) |
+| `debug`              | `false`                     | Whether to enable debug logging                                      |
+| `schema_config_path` | `config/schema_config.yaml` | Path to the schema configuration file                                |
+| `cache_directory`    | `.cache`                    | Path to the schema configuration file                                |
+
+
+The second block is the Database Management System Settings, which starts with the name of the DBMS, in this case it's `neo4j:`
+
+| key                      | value       | description                                          |
+| ------------------------ | ----------- | ---------------------------------------------------- |
+| `delimiter`              | `'\t'`      | Field delimiter for CSV import files                 |
+| `array_delimiter`        | `';'`       | Delimiter for array values                           |
+| `skip_duplicate_nodes`   | `true`      | Whether to skip duplicate nodes during import        |
+| `skip_bad_relationships` | `true`      | Whether to skip relationships with missing endpoints |
+| `import_call_bin_prefix` | `/usr/bin/` | Prefix for the import command binary (optional)      |
+
+
+The default configuration that comes with BioCypher and more configuration parameters for the Settings are listed in [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/).
+
+Exercise: 
+
+Answer: 
+
+**File: `biocypher_config.yaml`**
+```yaml
+#---------------------------------------------------------------
+#--------        BIOCYPHER GENERAL CONFIGURATION        --------
+#---------------------------------------------------------------
+biocypher:
+  offline: true
+  debug: false
+  schema_config_path: config/schema_config.yaml
+  cache_directory: .cache
+
+#----------------------------------------------------
+#--------        OUTPUT CONFIGURATION        --------
+#----------------------------------------------------
+neo4j:
+  delimiter: '\t'
+  array_delimiter: '|'
+  skip_duplicate_nodes: true
+  skip_bad_relationships: true
+  import_call_bin_prefix: /usr/bin/
+```
+
+### Step 2. Create an adapter
+
+**Rationale:** An adapter allows you to efficiently transform, integrate, combine data from different sources ensuring compatibility with BioCypher's schema and streamlining the import process.
+
+**File: `protein_adapter.yaml`**
+```
+
+
+```
+
+
+### Step 3. Create a knowledge graph script
 
 - Create a BioCypher object
 
@@ -346,8 +515,8 @@ BioCypher is like a toolkit that helps users combine and use information from di
 
 - Write data from your adapter to BioCypher
   
-### Section 4. Interacting with your graph using Neo4j
-#### Load the graph using an import script
-#### Visualize the graph
-#### Execute cypher queries
+## Section 4. Interacting with your graph using Neo4j
+### Load the graph using an import script
+### Visualize the graph
+### Execute cypher queries
 
