@@ -140,21 +140,90 @@ Now we use the following proteins import `schema_config.yaml` as an example:
 ```yaml
 protein:
     represented_as: node
+    preferred_id: uniprot
     input_label: uniprot_protein
 
 protein protein interaction:
     is_a: pairwise molecular interaction
-    represented as edge: edge
+    represented_as: edge
+    input_label: protein_protein_interaction
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
+        consensus_stimulation: bool
+        consensus_inhibition: bool
+
+binding:
+    is_a: protein protein interaction
+    inherit_properties: true
+    represented_as: edge
+    input_label: binding
 ```
 TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
 
-The first block is the node settings, which starts with `protein:` since we import proteins in this case.
+The first block is the node settings. In this case, it starts with `protein:` since we import proteins.
 
 ```yaml
+    represented_as: node
+```
+The `represented_as` key tells BioCypher in which way each entity should be represented in the graph, it's either `node` or `edge`
+
+```yaml
+    preferred_id: uniprot
+```
+TODO: [Edwin] explain a little bit about `preferred_id` key
+```yaml
+    input_label: uniprot_protein
+```
+The adapter reads the input data stream and output the node tuples with format `[id,label,properties]` for BioCypher to take care. ID and label are mandatory while properties are optional. In this case, we didn't configure the properties for node. `input_label` key indicates which `label` to expect in the node tuple and all other input nodes that do not carry this label are ignored as long as they are not in the schema configuration.
+
+The second block is the relationship settings. In this case, it starts with `protein protein interaction:` since we import protein interactions in this case.
+
+```yaml
+    is_a: pairwise molecular interaction
 
 ```
+the `is_a` key is used to define inheritance
+```yaml
+    represented_as: edge
+```
+here the `represented_as` is `edge` because this block configures the relationship.
+```yaml
+    input_label: protein_protein_interaction
+```
+The adapter reads the input data stream and output the edge tuples with format `[id,source_id,target_id,edge_label,properties]` for BioCypher to take care. IDs and label are mandatory while properties are optional.`input_label` key indicates which `edge_label` to expect in the edge tuple and all other input edges that do not carry this label are ignored as long as they are not in the schema configuration.
+
+```yaml
+    properties:
+        is_stimulation: bool
+        is_inhibition: bool
+        consensus_direction: bool
+        consensus_stimulation: bool
+        consensus_inhibition: bool
+```
+properties are optional and can include different types of information on the entities.
+
+The third block is a child relationship inherits from `protein protein interaction`. Sometimes, explicit designation of properties requires a lot of maintenance work, particularly for classes with many properties. In these cases, it may be more convenient to inherit properties from a parent class. 
+```yaml
+    is_a: protein protein interaction
+    inherit_properties: true
+```
+This is done by defining inheritance via the `is_a` key in the child class configuration and setting the `inherit_properties` key to `true`.
+```yaml
+    represented_as: edge
+```
+here the `represented_as` is `edge` because this block configures the relationship.
+```yaml
+    input_label: binding
+```
+In this case, all other input edges that do not carry this `binding` label are ignored as long as they are not in the schema configuration.
+
 
 #### Step 2. Create an adapter
+BioCypher is like a toolkit that helps users combine and use information from different biomedical sources without repeating the same work. Instead of everyone building their own custom solutions from scratch, BioCypher provides ready-made “adapters” that can connect to different databases and ontologies. You can also build your own adapter.
+
+
 
 #### Step 4. Create a knowledge graph script
 
