@@ -102,7 +102,7 @@ TODO: [Edwin] add a example about the final graph
 By looking the data we can notice there are two columns called `source` and `target`, they represent proteins. It means each row represent the interaction between a `source` protein and a `target` protein. So for now, our graph could look like this:
 
 <div align="center">
-  <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="400"/>
+  <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="300"/>
 </div>
 
 Can we improve the graph? Yes, we could. This is why undestanding the data is crucial to build any graph. If we put attention to the other columns in the table, we can notice the following:
@@ -120,7 +120,7 @@ Can we improve the graph? Yes, we could. This is why undestanding the data is cr
   - `entity_type_target`
 
 <div align="center">
-  <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="400"/>
+  <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="300"/>
 </div>
 
 
@@ -140,13 +140,13 @@ Properties interactions
 We are ready to model our first version of our graph. It is like follows:
 
 <div align="center">
-  <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="400"/>
+  <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="300"/>
 </div>
 
 Finally, we can create a more refined graph with the data we have in our dataset. 
 
 <div align="center">
-  <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="500"/>
+  <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="400"/>
 </div>
 
 ### Exercise 1. Example of a graph we expect with our data
