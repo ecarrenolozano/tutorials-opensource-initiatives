@@ -147,6 +147,12 @@ Finally, we can create a more refined graph with the data we have in our dataset
 
 ### Exercise 1. Example of a graph we expect with our data
 
+> 📝 **Exercise:** 
+> Sketch a  portion of the knowledge graph using the data!
+
+> ✅ **Answer:** 
+> Your sketch should look like this in case you use all the nodes and edges in your csv file.
+
 ```mermaid
 graph LR
     SOD1((SOD1))   -- binding --> EGFR((EGFR))
@@ -360,9 +366,11 @@ Let's explain the keys and values for the second case (Option 2), because we are
 | `input_label`        | `binding`                     | specifies the expected edge label; edges without this label are ignored unless defined in the schema. |
 
 
-> 📝 **Exercise:** Complete the `schema_config.yaml` file.
+> 📝 **Exercise:** 
+> Complete the `schema_config.yaml` file and ensure it is in the `config` folder.
 
-✅ **Answer:** See the example below for a completed `schema_config.yaml`.
+> ✅ **Answer:** 
+> See the example below for a completed `schema_config.yaml`.
 
 **File: `schema_config.yaml`**
 ```yaml
@@ -473,9 +481,12 @@ The second block is the Database Management System Settings, which starts with t
 
 The default configuration that comes with BioCypher and more configuration parameters for the Settings are listed in [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/).
 
-Exercise: 
+> 📝 **Exercise:** 
+> Rewrite the content of the `biocypher_config.yaml` file, with the content of the aforementioned snippet.
+> Ensure this file is under the `config` folder. 
 
-Answer: 
+> ✅ **Answer:** 
+> See the example below for a completed `biocypher_config.yaml`.
 
 **File: `biocypher_config.yaml`**
 ```yaml
@@ -502,9 +513,8 @@ neo4j:
 ### Step 2. Create an adapter
 
 <div align="center">
-  <img src="./assets/biocypher_section_adapter.png" alt="Protein interaction graph (model 3)" width="1000"/>
+  <img src="./assets/biocypher_section_adapter.png" alt="BioCypher Adapter" width="1000"/>
 </div>
-
 
 **Rationale:** An adapter allows you to efficiently transform, integrate, combine data from different sources ensuring compatibility with BioCypher's schema and streamlining the import process.
 
@@ -737,20 +747,92 @@ class Adapter:
   <img src="./assets/biocypher_section_script.png" alt="Protein interaction graph (model 3)" width="1000"/>
 </div>
 
-- Create a BioCypher object
+TODO: add rationale
+
+
+1. Create a BioCypher object
+  **File: `create_knowledge_graph.py`**
+    ```python
+    import BioCypher
+
+    # Create an instance of BioCypher
+    bc = BioCypher()
+    ```
+
+2. Instantiate your adapter
+
+    **File: `create_knowledge_graph.py`**
+    ```python
+
+    # Choose the node type you want appear in the Knowledge Graph
+    node_types = [
+        AdapterNodeType.PROTEIN
+    ]
+
+    # Choose protein adapter fields to include in the knowledge graph.
+    node_fields = [
+        AdapterProteinField.ID,
+        AdapterProteinField.PREFERRED_ID,
+        AdapterProteinField.GENESYMBOL,
+        AdapterProteinField.NCBI_TAX_ID
+    ]
+
+    # Choose the node type you want appear in the Knowledge Graph
+    edge_types = [
+        AdapterEdgeType.PROTEIN_PROTEIN_INTERACTION,
+        AdapterEdgeType.BINDING,
+        AdapterEdgeType.ACTIVATION,
+        AdapterEdgeType.PHOSPHORYLATION,
+        AdapterEdgeType.UBIQUITINATION,
+        AdapterEdgeType.INHIBITION
+    ]
+
+    # (there is not code here!) Choose interaction adapter fields to include in the knowledge graph.
+    # By default, in case of not specifying this, BioCypher will bring all the fields defined in the adapter
+
+    # Create an adapter instance
+    adapter = Adapter(
+        node_types=node_types,
+        node_fields=node_fields,
+        edge_types=edge_types,
+    )
+    ```
+
+3. Write data from your adapter to BioCypher
+    **File: `create_knowledge_graph.py`**
+    ```python
+    # Create a knowledge graph from the adapter
+    bc.write_nodes(adapter.get_nodes())
+    bc.write_edges(adapter.get_edges())
+    ```
+
+4. Export your graph to Neo4j (generation of .csvs and import script)
+    **File: `create_knowledge_graph.py`**
+    ```python
+    # Generate assets for Neo4j exportation
+    bc.write_import_call()
+    ```
+
+5. Print summary
+    **File: `create_knowledge_graph.py`**
+    ```python
+    # Print a summary when
+    bc.summary()
+    ```
+
+> 📝 **Exercise:** 
+> Integrate the aforementioned snippets in a single file called `create_knowledge_graph.py` script and run it!
+
+> ✅ **Answer:** 
+> See the example below for a completed `create_knowledge_graph.yaml`.
 
 **File: `create_knowledge_graph.py`**
+
 ```python
 import BioCypher
 
 # Create an instance of BioCypher
 bc = BioCypher()
-```
-
-- Instantiate your adapter
-
-**File: `create_knowledge_graph.py`**
-```python
 
 # Choose the node type you want appear in the Knowledge Graph
 node_types = [
@@ -784,73 +866,6 @@ adapter = Adapter(
     node_fields=node_fields,
     edge_types=edge_types,
 )
-```
-
-- Write data from your adapter to BioCypher
-**File: `create_knowledge_graph.py`**
-```python
-# Create a knowledge graph from the adapter
-bc.write_nodes(adapter.get_nodes())
-bc.write_edges(adapter.get_edges())
-```
-
-- Export your graph to Neo4j (generation of .csvs and import script)
-**File: `create_knowledge_graph.py`**
-```python
-# Generate assets for Neo4j exportation
-bc.write_import_call()
-```
-
-- Print summary
-**File: `create_knowledge_graph.py`**
-```python
-# Print a summary when
-bc.summary()
-```
-
-**Exercise:** Integrate the aforementioned snippets in a single file called `create_knowledge_graph.py` script and run it!
-
-**Answer:**
-
-**File: `create_knowledge_graph.py`**
-```python
-import BioCypher
-
-# Create an instance of BioCypher
-bc = BioCypher()
-
-# Choose the node type you want appear in the Knowledge Graph
-node_types = [
-    AdapterNodeType.PROTEIN
-]
-
-# Choose protein adapter fields to include in the knowledge graph.
-node_fields = [
-    AdapterProteinField.ID,
-    AdapterProteinField.PREFERRED_ID,
-    AdapterProteinField.GENESYMBOL,
-    AdapterProteinField.NCBI_TAX_ID
-]
-
-# Choose the node type you want appear in the Knowledge Graph
-edge_types = [
-    AdapterEdgeType.PROTEIN_PROTEIN_INTERACTION,
-    AdapterEdgeType.BINDING,
-    AdapterEdgeType.ACTIVATION,
-    AdapterEdgeType.PHOSPHORYLATION,
-    AdapterEdgeType.UBIQUITINATION,
-    AdapterEdgeType.INHIBITION
-]
-
-# (there is not code here!) Choose interaction adapter fields to include in the knowledge graph.
-# By default, in case of not specifying this, BioCypher will bring all the fields defined in the adapter
-
-# Create an adapter instance
-adapter = Adapter(
-    node_types=node_types,
-    node_fields=node_fields,
-    edge_types=edge_types,
-)
 
 # Create a knowledge graph from the adapter
 bc.write_nodes(adapter.get_nodes())
@@ -863,8 +878,6 @@ bc.write_import_call()
 bc.summary()
 ```
 
-
-  
 ## Section 4. Interacting with your graph using Neo4j
 ### Load the graph using an import script
 ### Visualize the graph
