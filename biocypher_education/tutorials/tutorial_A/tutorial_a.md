@@ -2,14 +2,14 @@
 
 ## Overview
 
-This tutorial will help you get started with BioCypher. You will learn how to bring together different types of biomedical data and create a simple knowledge graph about proteins and their connections.
+This tutorial will help you get started with BioCypher. You will learn how to integrate different types of biomedical data and create a simple knowledge graph about proteins and their interactions.
 
 By the end of this tutorial, you will be able to:
 
 - Set up BioCypher for a basic project.
 - Collect and organize example protein data.
 - Build a small knowledge graph from the data.
-- View and search the graph using Neo4j.
+- View and query the graph using Neo4j.
 
 ## Pre-requisites
 
@@ -21,8 +21,9 @@ By the end of this tutorial, you will be able to:
 
 In this section, you will set up your working environment using the BioCypher Project Template. This template provides a ready-to-use folder structure and example files, so you can focus on building your application.
 
+
 **Before you start:**
-- Make sure you have [Poetry](https://python-poetry.org/docs/#installation) and Python 3.10 or higher installed. If not, follow the official installation guides.
+- Ensure you have [Poetry](https://python-poetry.org/docs/#installation) and Python 3.10 or higher installed. If not, follow the official installation guides.
 
 **Steps:**
 
@@ -46,7 +47,8 @@ git commit -m "Initial commit"
 poetry install
 ```
 
-**Tip:** If you have trouble with Poetry or Python, check the official documentation or use your system's package manager to install them.
+
+**Tip:** If you encounter issues with Poetry or Python, consult the official documentation or use your system's package manager to install them.
 
 **Check your setup:**
 Run the following command to confirm your environment is ready:
@@ -92,12 +94,11 @@ print('Unique proteins in column protein_b:', df['protein_b'].nunique())
 
 ## Section 2. Graph Modeling
 ### Graph Modeling
-TODO: [Edwin] add a example about the final graph
 
 By looking the data we can notice there are two columns called `source` and `target`, they represent proteins. It means each row represent the interaction between a `source` protein and a `target` protein. So for now, our graph could look like this:
 
 <div align="center">
-  <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="300"/>
+  <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="400"/>
 </div>
 
 Can we improve the graph? Yes, we could. This is why undestanding the data is crucial to build any graph. If we put attention to the other columns in the table, we can notice the following:
@@ -115,7 +116,7 @@ Can we improve the graph? Yes, we could. This is why undestanding the data is cr
   - `entity_type_target`
 
 <div align="center">
-  <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="300"/>
+  <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="400"/>
 </div>
 
 
@@ -135,13 +136,13 @@ Properties interactions
 We are ready to model our first version of our graph. It is like follows:
 
 <div align="center">
-  <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="300"/>
+  <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="400"/>
 </div>
 
 Finally, we can create a more refined graph with the data we have in our dataset. 
 
 <div align="center">
-  <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="400"/>
+  <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="550"/>
 </div>
 
 ### Exercise 1. Example of a graph we expect with our data
@@ -197,18 +198,22 @@ We aim to create a knowledge graph using the data we found in the .csv. Let's re
 
 We can divide the complete process in three sections called:
 1. Configuration.
-  - Schema configuration.
-  - BioCypher configuration 
+     - Schema configuration.
+     - BioCypher configuration 
 
 2. Adapter creation.
-  - read/connect to input data.
-  - process data.
-  - stream processed data.
+     - read/connect to input data.
+     - process data.
+     - stream processed data.
 
-3. Knowledge Graph script.
+3. Create a Knowledge Graph script for the entire pipeline.
 
 
 ### Step 1. Configuration
+
+<div align="center">
+  <img src="./assets/biocypher_section_conf.png" alt="Protein interaction graph (model 3)" width="1000"/>
+</div>
 
 #### Create a schema for your graph
 
@@ -355,9 +360,9 @@ Let's explain the keys and values for the second case (Option 2), because we are
 | `input_label`        | `binding`                     | specifies the expected edge label; edges without this label are ignored unless defined in the schema. |
 
 
-Exercise: Complete the `schema_config.yaml`
+> 📝 **Exercise:** Complete the `schema_config.yaml` file.
 
-Answer:
+✅ **Answer:** See the example below for a completed `schema_config.yaml`.
 
 **File: `schema_config.yaml`**
 ```yaml
@@ -496,24 +501,369 @@ neo4j:
 
 ### Step 2. Create an adapter
 
+<div align="center">
+  <img src="./assets/biocypher_section_adapter.png" alt="Protein interaction graph (model 3)" width="1000"/>
+</div>
+
+
 **Rationale:** An adapter allows you to efficiently transform, integrate, combine data from different sources ensuring compatibility with BioCypher's schema and streamlining the import process.
 
-**File: `protein_adapter.yaml`**
-```
+**File: `adapter_synthetic_proteins.py`**
+```python
+import os
+from enum import Enum, auto
+from itertools import chain
+from typing import Optional, Generator
+from pathlib import Path
 
 
+import pandas as pd
+from biocypher import BioCypher
+from biocypher._logger import logger
+
+
+CSV_FILE_PATH_SYNTHETIC_PROTEINS = Path("./synthetic_protein_interactions.tsv")
+
+class AdapterNodeType(Enum):
+    """
+    Define types of nodes the adapter can provide.
+    """
+
+    PROTEIN = auto()
+
+class AdapterProteinField(Enum):
+    """
+    Define possible fields the adapter can provide for proteins.
+    """
+
+    ID = "id"
+    PREFERRED_ID = "preferred_id"
+    GENE_SYMBOL = "genesymbol"
+    NCBI_TAX_ID = "ncbi_tax_id"
+
+class AdapterEdgeType(Enum):
+    """
+    Enum for the types of the protein adapter.
+    """
+
+    PROTEIN_PROTEIN_INTERACTION = "protein_protein_interaction"
+    BINDING = "binding"
+    ACTIVATION = "activation"
+    PHOSPHORYLATION = "phosphorylation"
+    UBIQUITINATION = "ubiquitination"
+    INHIBITION = "inhibition"
+
+class AdapterProteinProteinEdgeField(Enum):
+    """
+    Define possible fields the adapter can provide for protein-protein edges.
+    """
+
+    INTERACTION_TYPE = "interaction_type"
+    INTERACTION_SOURCE = "interaction_source"
+    IS_STIMULATION = "is_stimulation"
+    IS_INHIBITION = "is_inhibition"
+    CONSENSUS_DIRECTION = "consensus_direction"
+    CONSENSUS_STIMULATION = "consensus_stimulation"
+    CONSENSUS_INHIBITION = "consensus_inhibition"
+
+class Adapter:
+    def __init__(
+        self,
+        csv_path: str = CSV_FILE_PATH_SYNTHETIC_PROTEINS,
+        node_types: Optional[list] = None,
+        node_fields: Optional[list] = None,
+        edge_types: Optional[list] = None,
+        edge_fields: Optional[list] = None,
+    ):
+        self.csv_path = csv_path
+        self._set_types_and_fields(node_types, node_fields, edge_types, edge_fields)
+
+    def _read_csv(self) -> pd.DataFrame:
+        """
+        Reads and validates the TSV file.
+        Returns:
+            pd.DataFrame: DataFrame containing the TSV data.
+        Raises:
+            FileNotFoundError: If the file does not exist.
+            ValueError: If required columns are missing.
+        """
+        if not Path(self.csv_path).exists():
+            logger.error(f"CSV file not found: {self.csv_path}")
+            raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
+        df = pd.read_csv(self.csv_path, sep="\t", header=0)
+        required_columns = [
+            'source', 'target', 'source_genesymbol', 'target_genesymbol',
+            'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
+            'is_stimulation', 'is_inhibition', 'consensus_direction',
+            'consensus_stimulation', 'consensus_inhibition'
+        ]
+        missing = [col for col in required_columns if col not in df.columns]
+        if missing:
+            logger.error(f"Missing columns in CSV: {missing}")
+            raise ValueError(f"CSV must contain columns: {missing}")
+        return df
+
+    def get_nodes(self) -> 'Generator[tuple[str, str, dict], None, None]':
+        """
+        Yields node tuples for node types specified in the adapter constructor.
+
+        Returns:
+            Generator[tuple[str, str, dict], None, None]:
+                Each tuple is (id, label, properties).
+        """
+        logger.info("Reading nodes.")
+        df = self._read_csv()
+
+        # Generator for nodes in the `source` column
+        for row in df.itertuples(index=False):            
+            id = row.source
+            input_label = "uniprot_protein"
+
+            properties = {
+                'genesymbol': row.source_genesymbol,
+                'ncbi_tax_id': row.ncbi_tax_id_source,
+                'entity_type': row.entity_type_source,
+            }
+
+            yield(
+                id,
+                input_label,
+                properties
+            )
+
+        # Generator for nodes in the `target` column
+        for row in df.itertuples(index=False):            
+            id = row.target
+            input_label = "uniprot_protein"
+
+            properties = {
+                'genesymbol': row.target_genesymbol,
+                'ncbi_tax_id': row.ncbi_tax_id_target,
+                'entity_type': row.entity_type_target,
+            }
+
+            yield(
+                id,
+                input_label,
+                properties
+            )
+
+    def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
+        """
+        Yields edge tuples for edge types specified in the adapter constructor.
+
+        Returns:
+            Generator[tuple[str, str, str, str, dict], None, None]:
+                Each tuple is (id, source, target, type, properties).
+        """
+        logger.info("Generating edges.")
+        df = self._read_csv()
+
+        for row in df.itertuples(index=False):
+            # Concatenate source and target, i.e., "SOD1EGFR"
+            id = f"{row.source}{row.target}"
+
+            source = row.source
+            
+            target = row.target
+
+            type = row.type
+
+            properties = {
+                'is_stimulation': row.is_stimulation,
+                'is_inhibition': row.is_inhibition,
+                'consensus_direction': row.consensus_direction,
+                'consensus_stimulation': row.consensus_stimulation,
+                'consensus_inhibition': row.consensus_inhibition
+            }
+
+            yield (
+                id,
+                source,
+                target,
+                type,
+                properties
+            )
+
+    def get_node_count(self) -> int:
+        """
+        Returns the number of nodes generated by the adapter.
+
+        Returns:
+            int: Number of nodes generated.
+        """
+        return sum(1 for _ in self.get_nodes())
+
+    def _set_types_and_fields(self, node_types, node_fields, edge_types, edge_fields) -> None:
+        """
+        Sets the node and edge types and fields for the adapter.
+
+        Args:
+            node_types (Optional[list]): List of node types.
+            node_fields (Optional[list]): List of node fields.
+            edge_types (Optional[list]): List of edge types.
+            edge_fields (Optional[list]): List of edge fields.
+        """
+        if node_types:
+            self.node_types = node_types
+        else:
+            self.node_types = [type for type in AdapterNodeType]
+
+        if node_fields:
+            self.node_fields = node_fields
+        else:
+            self.node_fields = [
+                field
+                for field in chain(
+                    AdapterProteinField,
+                )
+            ]
+
+        if edge_types:
+            self.edge_types = edge_types
+        else:
+            self.edge_types = [type for type in AdapterEdgeType]
+
+        if edge_fields:
+            self.edge_fields = edge_fields
+        else:
+            self.edge_fields = [field for field in chain()]
 ```
 
 
 ### Step 3. Create a knowledge graph script
 
+<div align="center">
+  <img src="./assets/biocypher_section_script.png" alt="Protein interaction graph (model 3)" width="1000"/>
+</div>
+
 - Create a BioCypher object
 
+**File: `create_knowledge_graph.py`**
+```python
+import BioCypher
+
+# Create an instance of BioCypher
+bc = BioCypher()
+```
 
 - Instantiate your adapter
 
+**File: `create_knowledge_graph.py`**
+```python
+
+# Choose the node type you want appear in the Knowledge Graph
+node_types = [
+    AdapterNodeType.PROTEIN
+]
+
+# Choose protein adapter fields to include in the knowledge graph.
+node_fields = [
+    AdapterProteinField.ID,
+    AdapterProteinField.PREFERRED_ID,
+    AdapterProteinField.GENESYMBOL,
+    AdapterProteinField.NCBI_TAX_ID
+]
+
+# Choose the node type you want appear in the Knowledge Graph
+edge_types = [
+    AdapterEdgeType.PROTEIN_PROTEIN_INTERACTION,
+    AdapterEdgeType.BINDING,
+    AdapterEdgeType.ACTIVATION,
+    AdapterEdgeType.PHOSPHORYLATION,
+    AdapterEdgeType.UBIQUITINATION,
+    AdapterEdgeType.INHIBITION
+]
+
+# (there is not code here!) Choose interaction adapter fields to include in the knowledge graph.
+# By default, in case of not specifying this, BioCypher will bring all the fields defined in the adapter
+
+# Create an adapter instance
+adapter = Adapter(
+    node_types=node_types,
+    node_fields=node_fields,
+    edge_types=edge_types,
+)
+```
 
 - Write data from your adapter to BioCypher
+**File: `create_knowledge_graph.py`**
+```python
+# Create a knowledge graph from the adapter
+bc.write_nodes(adapter.get_nodes())
+bc.write_edges(adapter.get_edges())
+```
+
+- Export your graph to Neo4j (generation of .csvs and import script)
+**File: `create_knowledge_graph.py`**
+```python
+# Generate assets for Neo4j exportation
+bc.write_import_call()
+```
+
+- Print summary
+**File: `create_knowledge_graph.py`**
+```python
+# Print a summary when
+bc.summary()
+```
+
+**Exercise:** Integrate the aforementioned snippets in a single file called `create_knowledge_graph.py` script and run it!
+
+**Answer:**
+
+**File: `create_knowledge_graph.py`**
+```python
+import BioCypher
+
+# Create an instance of BioCypher
+bc = BioCypher()
+
+# Choose the node type you want appear in the Knowledge Graph
+node_types = [
+    AdapterNodeType.PROTEIN
+]
+
+# Choose protein adapter fields to include in the knowledge graph.
+node_fields = [
+    AdapterProteinField.ID,
+    AdapterProteinField.PREFERRED_ID,
+    AdapterProteinField.GENESYMBOL,
+    AdapterProteinField.NCBI_TAX_ID
+]
+
+# Choose the node type you want appear in the Knowledge Graph
+edge_types = [
+    AdapterEdgeType.PROTEIN_PROTEIN_INTERACTION,
+    AdapterEdgeType.BINDING,
+    AdapterEdgeType.ACTIVATION,
+    AdapterEdgeType.PHOSPHORYLATION,
+    AdapterEdgeType.UBIQUITINATION,
+    AdapterEdgeType.INHIBITION
+]
+
+# (there is not code here!) Choose interaction adapter fields to include in the knowledge graph.
+# By default, in case of not specifying this, BioCypher will bring all the fields defined in the adapter
+
+# Create an adapter instance
+adapter = Adapter(
+    node_types=node_types,
+    node_fields=node_fields,
+    edge_types=edge_types,
+)
+
+# Create a knowledge graph from the adapter
+bc.write_nodes(adapter.get_nodes())
+bc.write_edges(adapter.get_edges())
+
+# Generate assets for Neo4j exportation
+bc.write_import_call()
+
+# Print a summary when
+bc.summary()
+```
+
+
   
 ## Section 4. Interacting with your graph using Neo4j
 ### Load the graph using an import script
