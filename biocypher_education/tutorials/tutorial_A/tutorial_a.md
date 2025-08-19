@@ -611,6 +611,7 @@ biocypher:
 #--------        OUTPUT CONFIGURATION        --------
 #----------------------------------------------------
 neo4j:
+  database_name: neo4j
   delimiter: '\t'
   array_delimiter: '|'
   skip_duplicate_nodes: true
