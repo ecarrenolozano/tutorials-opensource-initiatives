@@ -1531,9 +1531,8 @@ RETURN COUNT(r) AS totalBindings;
 ---
 
 ## Next Steps
-
 - Explore more advanced queries and graph analytics in Neo4j.
-- Try integrating additional datasets or expanding your graph model.
+- Try integrating additional datasets or expanding your graph model. For guidance, see the [Basics](https://biocypher.org/BioCypher/learn/tutorials/tutorial001_basics/) tutorial.
 - Review the [BioCypher documentation](https://biocypher.org/) for deeper insights.
 
 ## Feedback & Contributions
