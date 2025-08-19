@@ -149,7 +149,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     import pandas as pd
 
     # Load the dataset
-    df = pd.read_csv('./data/in/synthetic_protein_interactions.tsv', sep='\t')
+    df = pd.read_csv('../data/in/synthetic_protein_interactions.tsv', sep='\t')
 
     # Show the first few rows
     print("\n---- First 10 rows in the dataset")
@@ -1124,7 +1124,7 @@ class Adapter:
     node_fields = [
         AdapterProteinField.ID,
         AdapterProteinField.PREFERRED_ID,
-        AdapterProteinField.GENESYMBOL,
+        AdapterProteinField.GENE_SYMBOL,
         AdapterProteinField.NCBI_TAX_ID
     ]
 
