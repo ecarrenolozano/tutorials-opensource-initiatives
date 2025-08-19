@@ -1074,6 +1074,7 @@ class Adapter:
 **Rationale:** Integrating all steps—downloading the dataset, loading the data, extracting nodes and edges, and exporting graph assets—into a single script streamlines the entire process. This approach makes it easier to build and manage the knowledge graph pipeline efficiently and reproducibly.
 
 1. Create a BioCypher object
+
     **File: `create_knowledge_graph.py`**
     ```python
     from biocypher import BioCypher, FileDownload
@@ -1083,6 +1084,7 @@ class Adapter:
     ```
 
 2.  Use BioCypher to automatically download the file with cache capabilities.
+
     **File: `create_knowledge_graph.py`**
     ```python
     # Download the file with cache capabilities
@@ -1149,6 +1151,7 @@ class Adapter:
     ```
 
 4. Write data from your adapter to BioCypher
+
     **File: `create_knowledge_graph.py`**
     ```python
     # Create a knowledge graph from the adapter
@@ -1157,6 +1160,7 @@ class Adapter:
     ```
 
 5. Export your graph to Neo4j (generation of CSV files and import script)
+
     **File: `create_knowledge_graph.py`**
     ```python
     # Generate assets for Neo4j exportation
@@ -1164,6 +1168,7 @@ class Adapter:
     ```
 
 6. Print summary
+
     **File: `create_knowledge_graph.py`**
     ```python
     # Print a summary when
@@ -1317,7 +1322,9 @@ When you run the `create_knowledge_graph.py` script and it completes successfull
 a. Look for a folder whose name starts with `biocypher-out`. Each time you run the script, a new folder is created inside `biocypher-out` with a timestamp. Inside this folder, you should see the following:
 
 🟨 CSV files associated to **nodes**.
+
 🟦 CSV files associated to **edges**.
+
 🟥 admin import script
 
 ```
@@ -1479,6 +1486,40 @@ b. Now, click on the asterisk under the Relationships category. You now should s
 ### Execute cypher queries
 
 Try the following queries:
+
+1. Find relationships between two nodes
+```cypher
+MATCH (a)-[r]->(b)
+RETURN a, r, b;
+```
+
+2. Find all the nodes
+
+```cypher
+MATCH (n)
+RETURN n;
+```
+
+3. Find all nodes of a specific type(e.g. `protein` in the following query)
+
+```cypher
+MATCH (n:protein)
+RETURN n;
+```
+
+4. Find all relationships of a specific type(e.g. `binding` in the following query)
+
+```cypher
+MATCH (a)-[r:binding]->(b)
+RETURN a, r, b;
+```
+
+5. Count relationships of a given type(e.g. `binding` in the following query)
+
+```cypher
+MATCH (a)-[r:binding]->(b)
+RETURN COUNT(r) AS totalBindings;
+```
 
 [#TODO] Shuangshuang: Add 5 useful queries for the graph.
 [#TODO] Shuangshuang: Check grammar and possible errors.
