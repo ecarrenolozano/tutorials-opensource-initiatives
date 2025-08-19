@@ -681,7 +681,7 @@ class AdapterProteinProteinEdgeField(Enum):
 
 Now you are ready to write functions that load the data into a dataframe and extract nodes and edges. Before doing this you need to understand that BioCypher expect a certatin format. Let's discuss this:
 
-BioCypher expects each node or edge being a tuple (datastructure, i.e., `("Gregory_Mendel", "person", {"full_name": "Gregor Johann Mendel", "birth_year": 1822, "field": "Genetics"})`).
+BioCypher expects each node or edge being a tuple (datastructure).
 
 #### Nodes Convention
 BioCypher expects each node being a **3-element tuple**, with elements in the following order:
