@@ -5,9 +5,10 @@ This repository serves as a temporary workspace for drafting, reviewing, and imp
 
 ## Repository Structure
 
-- `how-to-guides/`: Step-by-step instructions for setup and usage.
-- `tutorials/`: In-depth tutorials for BioCypher.
-
+- `<initiative>_education`
+  - `how-to-guides/`: Step-by-step guides for accomplishing specific tasks with the initiative.
+  - `tutorials/`: Comprehensive, practical walkthroughs that teach concepts and workflows through examples.
+  - `explanations/`: Contextual and conceptual information to deepen understanding of the initiative, its principles, and background.
 
 ## What You'll Find Here
 
