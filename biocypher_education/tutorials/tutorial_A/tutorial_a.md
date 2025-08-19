@@ -1507,24 +1507,24 @@ MATCH (n)
 RETURN n;
 ```
 
-3. Find all nodes of a specific type(e.g. `protein` in the following query)
+3. Find all nodes of a specific type(e.g. `Protein` in the following query)
 
 ```cypher
-MATCH (n:protein)
+MATCH (n:Protein)
 RETURN n;
 ```
 
-4. Find all relationships of a specific type(e.g. `binding` in the following query)
+4. Find all relationships of a specific type(e.g. `Binding` in the following query)
 
 ```cypher
-MATCH (a)-[r:binding]->(b)
+MATCH (a)-[r:Binding]->(b)
 RETURN a, r, b;
 ```
 
-5. Count relationships of a given type(e.g. `binding` in the following query)
+5. Count relationships of a given type(e.g. `Binding` in the following query)
 
 ```cypher
-MATCH (a)-[r:binding]->(b)
+MATCH (a)-[r:Binding]->(b)
 RETURN COUNT(r) AS totalBindings;
 ```
 
