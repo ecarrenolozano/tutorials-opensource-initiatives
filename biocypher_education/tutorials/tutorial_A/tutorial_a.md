@@ -135,7 +135,7 @@ c. Check the details of your Neo4j instance. It is important to know the exact l
 
 ## Section 1. Exploratory Data Analysis
 
-For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/records/16745602) that contains information about the interaction between proteins. 
+For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/records/16902349) that contains information about the interaction between proteins. 
 
 - First, download the dataset:
 
