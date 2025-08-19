@@ -1,4 +1,10 @@
-# Hands-On Protein Graphs with BioCypher and Neo4j
+# 🧑‍💻 Hands-On Protein Graphs with BioCypher and Neo4j
+
+
+| Last Update | Developed by                       | Affiliation                                                                                                                                                                  |
+| :---------: | :--------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2025.08.19  | Shuangshuang Li <br> Edwin Carreño | [Scientific Software Center](https://www.ssc.uni-heidelberg.de/en) <br> [Saezlab](https://saezlab.org/) - [Scientific Software Center](https://www.ssc.uni-heidelberg.de/en) |
+
 
 ## Table of Contents
 
@@ -136,7 +142,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     ```bash
     mkdir -p ./data/in/
     curl -o ./data/in/synthetic_protein_interactions.tsv \
-    https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv
+    https://zenodo.org/records/16902349/files/synthetic_protein_interactions.tsv
     ```
 
 - Create a folder called `notebooks` under `tutorial-basics-biocypher`
@@ -149,7 +155,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     import pandas as pd
 
     # Load the dataset
-    df = pd.read_csv('../data/in/synthetic_protein_interactions.tsv', sep='\t')
+    df = pd.read_csv('./data/in/synthetic_protein_interactions.tsv', sep='\t')
 
     # Show the first few rows
     print("\n---- First 10 rows in the dataset")
@@ -1090,7 +1096,7 @@ class Adapter:
     ```python
     # Download the file with cache capabilities
     url_dataset = (
-        "https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv"
+        "https://zenodo.org/records/16902349/files/synthetic_protein_interactions.tsv"
     )
 
     resource = FileDownload(
@@ -1197,7 +1203,7 @@ bc = BioCypher()
 
 # Download the file with cache capabilities
 url_dataset = (
-    "https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv"
+    "https://zenodo.org/records/16902349/files/synthetic_protein_interactions.tsv"
 )
 
 resource = FileDownload(
@@ -1471,7 +1477,7 @@ a. Connect to your instance and select the option *Query*.
 <div align="center">
   <img src="./assets/neo4j_explore_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 1. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 8. Query and Explore options to run on a Neo4j instance.</em>
 </div>
 
 b. Now, click on the asterisk under the Relationships category. You now should see your graph! Compare to the sketch you did previosly in this tutorial
@@ -1480,7 +1486,7 @@ b. Now, click on the asterisk under the Relationships category. You now should s
 <div align="center">
   <img src="./assets/neo4j_final_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 1. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 8. Neo4j graph based on our data.</em>
 </div>
 
 
@@ -1522,8 +1528,20 @@ MATCH (a)-[r:binding]->(b)
 RETURN COUNT(r) AS totalBindings;
 ```
 
-[#TODO] Shuangshuang: Add 5 useful queries for the graph.
-[#TODO] Shuangshuang: Check grammar and possible errors.
-[#TODO] Shuangshuang: Run the tutorial.
+---
 
+## Next Steps
 
+- Explore more advanced queries and graph analytics in Neo4j.
+- Try integrating additional datasets or expanding your graph model.
+- Review the [BioCypher documentation](https://biocypher.org/) for deeper insights.
+
+## Feedback & Contributions
+
+If you found this tutorial helpful or have suggestions for improvement, please open an issue or submit a pull request.
+
+## Acknowledgments
+
+Special thanks to all contributors and the open-source community.
+
+---
