@@ -54,17 +54,18 @@ In this section, you will set up your working environment using the BioCypher Pr
     rm -rf .git
     git init
     git checkout -b main
-Sketch a portion of the knowledge graph using the dataset provided.
+    git add .
     git commit -m "Initial commit"
     ```
 
-3. Check the current project structure:
+3. Check the current project structure. Below, we list the most important folders and files for this tutorial.
 
     ```
     /tutorial-basics-biocypher
         ├── config 
         │   ├── biocypher_config.yaml 
-        │   ├── biocypher_docker_config.yaml 
+        │   ├── biocypher_docker_config.yaml
+        │   └── schema_config.yaml
         ├── create_knowledge_graph.py 
         ├── pyproject.toml
         ├── template_package
@@ -99,29 +100,29 @@ pip install biocypher==0.10.1
 
 ### Setup Neo4j
 
-In this section, we are going to create a Neo4j instance to work with later in the tutorial. It is important to do this right now.
+In this section, we will create a Neo4j instance to use later in the tutorial. It is important to set this up now.
 
 a. Execute Neo4j Desktop, if this the first time you should see a window like this one.
 <div align="center">
   <img src="./assets/neo4j_desktop_homepage.png" alt="Protein interaction graph (model 1)" width="800"/>
   <br>
-  <em>Figure 1. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 1. Neo4j Desktop start screen.</em>
 </div>
 
-b. Did you remember the name for our Neo4j database in our `config/biocypher_config.yaml` file? Hint: `neo4j`. Create an instance in Neo4j, for this tutorial I called the instance: `neo4j-tutorial-instance`, choose a password you can remember.
+b. Create a new instance in Neo4j. For this tutorial, name it `neo4j-tutorial-instance` and choose a password you can remember.
 
 <div align="center">
   <img src="./assets/neo4j_instance_creation.png" alt="Protein interaction graph (model 1)" width="800"/>
   <br>
-  <em>Figure 1. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 2. Create Instance window. This may vary depending on your Neo4j version.</em>
 </div>
 
-c. Check the detail of your Neo4j instance, for us, it is important to know the exact location. We are going to use this path in the rest of the tutorial.
+c. Check the details of your Neo4j instance. It is important to know the exact location, as we will use this path throughout the tutorial.
 
 <div align="center">
   <img src="./assets/neo4j_folder_details.png" alt="Protein interaction graph (model 1)" width="800"/>
   <br>
-  <em>Figure 1. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 3. Neo4j instance with its path location highlighted.</em>
 </div>
 
 
@@ -134,14 +135,15 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
 
     ```bash
     mkdir -p ./data/in/
-    curl -o ./data/in/synthetic_protein_interactions.tsv https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv
+    curl -o ./data/in/synthetic_protein_interactions.tsv \
+    https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv
     ```
 
 - Create a folder called `notebooks` under `tutorial-basics-biocypher`
     ```bash
     mkdir -p ./notebooks/
     ```
-- Create a Python file or a Jupyter notebook with the following content. 
+- Create and run either a Python file or a Jupyter notebook (if Jupyter is installed in your environment) containing the following code. 
     **File: `notebooks/eda_synthetic_data.py`**
     ```python
     import pandas as pd
@@ -174,8 +176,9 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     print("\n---- Number of unique proteins per column.")
     print('Unique proteins in column protein_a:', df['source'].nunique())
     print('Unique proteins in column protein_b:', df['target'].nunique())
-
+    
     ```
+    
 > 📝 **Exercise:** 
 > a. How many unique proteins do we have in the dataset?
 > b. How many interactions exist in our dataset?
@@ -190,24 +193,25 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
 ## Section 2. Graph Modeling
 ### Graph Modeling
 
-By looking the data we can notice there are two columns called `source` and `target`, they represent proteins. It means each row represent the interaction between a `source` protein and a `target` protein. So for now, our graph could look like this:
+By looking at the CSV file, we can see that there are two columns called `source` and `target`, which represent proteins. This means that each row represents an interaction between a source protein and a target protein. For now, our graph could look like this.
 
 <div align="center">
   <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="400"/>
   <br>
-  <em>Figure 1. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 4. Simple graph model for representing interactions between proteins</em>
 </div>
+<br>
 
 Can we improve the graph? Absolutely! Understanding the data is essential for building an effective graph. By examining the other columns in the table, we can identify additional details:
 
-- The `source` and `target` columns represent **nodes** in the graph—each corresponding to a protein.
+- The `source` and `target` columns represent **nodes** in the graph, with each node corresponding to a protein.
 
-- Each protein listed in the `source` column has associated properties, found in other columns:
-  - `source_genesymbol`: the gene symbol for the source protein
-  - `ncbi_tax_id_source`: the NCBI taxonomy identifier for the source protein
-  - `entity_type_source`: the type of entity for the source protein
+- Each protein listed in the `source` column has associated properties found in other columns:
+  - `source_genesymbol`: the gene symbol of the source protein.
+  - `ncbi_tax_id_source`: the NCBI taxonomy identifier of the source protein.
+  - `entity_type_source`: the type of entity for the source protein.
 
-- Each protein in the `target` column has associated properties, found in other columns:
+- Each protein in the `target` column has associated properties found in other columns:
   - `target_genesymbol`
   - `ncbi_tax_id_target`
   - `entity_type_target`
@@ -215,15 +219,15 @@ Can we improve the graph? Absolutely! Understanding the data is essential for bu
 <div align="center">
   <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="400"/>
     <br>
-  <em>Figure 2. Simple protein interaction graph with properties in nodes</em>
+  <em>Figure 5. Simple protein interaction graph with properties in nodes</em>
 </div>
+<br>
 
+We know that a `source` protein interacts with a `target` protein, but do we know **how**?
 
-We know that a `source` protein interacts with a `target` protein, but do we know how?
+Remaining columns in the table describe properties of these protein-protein interactions:
 
-Remaining columns in the table contain properties about the interaction between proteins. 
-
-Properties interactions
+**Interaction properties**
 - `is_directed`
 - `is_stimulation`
 - `is_inhibition`
@@ -231,20 +235,21 @@ Properties interactions
 - `consensus inhibition`
 - `type`
 
-We are ready to model our first version of our graph. It is like follows:
+We are ready to model our second version of our graph. It is like follows:
 
 <div align="center">
   <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="400"/>
     <br>
-  <em>Figure 3. Protein interaction graph showing node and edge properties</em>
+  <em>Figure 6. Protein interaction graph showing node and edge properties</em>
 </div>
+<br>
 
 Finally, we can create a more detailed graph using our dataset. Rather than representing all interactions in a generic way, we can use the `type` field to show the specific type of interaction occurring between each pair of proteins.
 
 <div align="center">
   <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="550"/>
       <br>
-  <em>Figure 4. Graph model for representing different interactions between proteins</em>
+  <em>Figure 7. Graph model for representing different interactions between proteins</em>
 </div>
 
 ### Exercise 1. Example of a graph we expect with our data
@@ -283,7 +288,7 @@ graph LR
 
 ```
 
-## Section 3. Graph creation with `BioCypher`
+## Section 3. Graph creation with BioCypher
 
 We aim to create a knowledge graph using the data we found in the CSV file. Let's recap our exercise:
 
@@ -302,19 +307,19 @@ We aim to create a knowledge graph using the data we found in the CSV file. Let'
   - *consensus_direction*
   - *consensus_inhibition*
 
-- We must export the Knowledge Graph to Neo4j.
+- We must export the knowledge graph to Neo4j.
 
-We can divide the complete process in three sections called:
+To achieve this, ee can divide the process into three sections:
 1. Configuration.
-     - Schema configuration.
-     - BioCypher configuration 
+    - Schema configuration
+    - BioCypher configuration 
 
 2. Adapter creation.
-     - read/connect to input data.
-     - process data.
-     - stream processed data.
+     - Read/connect to input data
+     - Process data
+     - Stream processed data
 
-3. Create a Knowledge Graph script for the entire pipeline.
+3. Knowledge Graph script
 
 
 ### Step 1. Configuration
@@ -366,14 +371,13 @@ binding:
 
 ##### Nodes
 
-`protein:` this top-key, in the .yaml snippet, identifies our entity and connects to the ontological backbone.
+The `protein` top-level key in the YAML snippet identifies our entity and connects it to the ontological backbone.
 
-
-| key              | value             | description                                                                                                                                                               |
-| ---------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `represented_as` | `node`            | tells BioCypher in which way each entity should be represented in the graph, in this case as a node.                                                                      |
-| `preferred_id`   | `uniprot`         | defines a namespace for our proteins, in our particular case all the proteins follows the uniprot convention (a 5-character string of numbers and letters, ie. P00533)    |
-| `input_label`    | `uniprot_protein` | indicates which label to expect in the node tuple and all other input nodes that do not carry this label are ignored as long as they are not in the schema configuration. |
+| Key              | Value             | Description                                                                                                                                               |
+| ---------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `represented_as` | `node`            | Specifies how BioCypher should represent each entity in the graph; in this case, as a node.                                                               |
+| `preferred_id`   | `uniprot`         | Defines a namespace for our proteins. In this example, all proteins follow the UniProt convention—a 5-character alphanumeric string (e.g., P00533).       |
+| `input_label`    | `uniprot_protein` | Indicates the expected label in the node tuple. All other input nodes without this label are ignored unless they are defined in the schema configuration. |
 
 For more information about which other keywords you can use to configure your nodes in the schema file consult [Fields reference](https://biocypher.org/BioCypher/reference/schema-config/#fields-reference).
 
@@ -382,10 +386,11 @@ TODO: [Edwin] explain a little bit about how to express the ontological backbone
 
 ##### Edges (relationships)
 
-As we saw in the Figure 4. Graph Model with five interactions, each edge has the same field properties (`is_directed`, `is_consensus`, etc.). In this point we have two options to define the edges:
+As shown in [Figure 7](#graph-modeling), each edge has the same set of properties (`is_directed`, `is_consensus`, etc.). At this stage, we have two options for defining the edges:
 
-- Option 1: to create each edge and explicitly define the same property fields for each edge.
+- Option 1: Create each edge and explicitly define the same set of property fields for every edge.
 
+**File: `config/schema_config.yaml`**
 ```yaml
 #-------------------------------------------------------------------
 #------------------      RELATIONSHIPS (EDGES)     -----------------
@@ -413,8 +418,9 @@ binding:
 # ...rest of schema_config.yaml omitted for brevity...
 ```
 
-- Option 2: to create a base edge with the properties, then we can create edges that inherit the behavior of this base edge. With this we can save some lines of code and avoid repeatition. Imagine, you have more than 20 edges, Option 1 probably is not a good idea for that case.
+- Option 2: Create a base edge with the properties, and then create edges that inherit the behavior of this base edge. This approach reduces lines of code and avoids repetition. For example, if you have more than 20 edges, Option 1 would likely not be practical.
 
+**File: `config/schema_config.yaml`**
 ```yaml
 #-------------------------------------------------------------------
 #------------------      RELATIONSHIPS (EDGES)     -----------------
@@ -428,7 +434,7 @@ protein protein interaction:
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
-        consensus_stimulation: boo
+        consensus_stimulation: bool
         
 #====   INHERITED EDGES
 activation:
@@ -449,25 +455,25 @@ binding:
 Let's explain the keys and values for the second case (Option 2), because we are going to use the second option approach.
 
 **Base Edge**
-`protein protein interaction:` this top-key, in the .yaml snippet, identifies our edge entity.
+The `protein protein interaction` top-level key in the YAML snippet identifies our edge entity.
 
-| key              | value                                             | description                                                                                                    |
-| ---------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `is_a`           | `pairwise molecular interaction`                  | defines the type of entity based on the ontology                                                               |
-| `represented_as` | `edge`                                            | defines explicitly, this is an edge                                                                            |
-| `input_label`    | `protein_protein_interaction`                     | defines a namespace for our relationships                                                                      |
-| `properties`     | *property*: *datatype* (i.e. `is_directed: bool`) | this key holds all the properties associated to this edge, each property has a name and a datatype associated. |
+| Key              | Value                                             | Description                                                                                             |
+| ---------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `is_a`           | `pairwise molecular interaction`                  | Defines the type of entity based on the ontology.                                                       |
+| `represented_as` | `edge`                                            | Explicitly specifies that this entity is an edge.                                                       |
+| `input_label`    | `protein_protein_interaction`                     | Defines a namespace for our relationships.                                                              |
+| `properties`     | *property*: *datatype* (i.e. `is_directed: bool`) | Contains all properties associated with this edge; each property has a name and an associated datatype. |
 
 
 **Inherited Edges**
-`activation:` this top-key, in the .yaml snippet, identifies our edge entity.
+The `activation:` top-level key in the YAML snippet identifies our edge entity.
 
-| key                  | value                         | description                                                                                           |
+| Key                  | Value                         | Description                                                                                           |
 | -------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `is_a`               | `protein protein interaction` | defines the type of entity based, in this case is child of the base edge we defined previosly         |
-| `inherit_properties` | `true`                        | defines if we should inherit all the properties defined in the base edge                              |
-| `represented_as`     | `edge`                        | BioCypher will treat this entity (`activation`) as an edge.                                           |
-| `input_label`        | `binding`                     | specifies the expected edge label; edges without this label are ignored unless defined in the schema. |
+| `is_a`               | `protein protein interaction` | Defines the type of entity; in this case, it is a child of the base edge we defined previously.       |
+| `inherit_properties` | `true`                        | Indicates whether all properties defined in the base edge should be inherited.                        |
+| `represented_as`     | `edge`                        | Specifies that BioCypher will treat this entity (`activation`) as an edge.                            |
+| `input_label`        | `binding`                     | Specifies the expected edge label; edges without this label are ignored unless defined in the schema. |
 
 
 > 📝 **Exercise:** 
@@ -476,7 +482,7 @@ Let's explain the keys and values for the second case (Option 2), because we are
 > ✅ **Answer:** 
 > See the example below for a completed `schema_config.yaml`.
 
-**File: `/config/schema_config.yaml`**
+**File: `config/schema_config.yaml`**
 ```yaml
 #-------------------------------------------------------------------
 #-------------------------      NODES      -------------------------
@@ -534,7 +540,7 @@ ubiquitination:
 
 ```
 
-#### Configure `BioCypher` behavior
+#### Configure BioCypher behavior
 
 **Rationale:** The purpose of writing a `biocypher_config.yaml` is to define how BioCypher should operate for your project—specifying settings for data import, graph creation, and database interaction—all in one place for clarity and easy customization.
 
@@ -622,7 +628,7 @@ neo4j:
 
 a. Create a file called `adapter_synthetic_proteins.py` under the folder `/template_package/adapters/`, in this file we are going to create our adapter.
 
-b. Write classes for the different nodes and properties in our graph. In this case analyze the following snippet and compare with the node elements we expect in our schema file (`schema_file.yaml`).
+b. Write classes for the different nodes and their properties in our graph. For now, focus on analyzing the following snippet and compare it with the node elements expected in our schema file (`schema_file.yaml`).
 
 **File: `/template_package/adapters/adapter_synthetic_proteins.py`**
 ```python
@@ -643,7 +649,7 @@ class AdapterProteinField(Enum):
     GENE_SYMBOL = "genesymbol"
     NCBI_TAX_ID = "ncbi_tax_id"
 ```
-c. Write classes for the different edges and properties in our graph. In this case analyze the following snippet and compare with the node elements we expect in our schema file (`schema_file.yaml`).
+c. Write classes for the different edges and their properties in our graph. For now, analyze the following snippet and compare it with the edge elements expected in our schema file (`schema_file.yaml`).
 
 **File: `/template_package/adapters/adapter_synthetic_proteins.py`**
 ```python
@@ -717,197 +723,116 @@ BioCypher expects each edge being a **5-element tuple**, with elements in the fo
 ("P53CREB1", "P53", "ubiquitination", "is_directed", True)
 ```
 
-Finally, you need to write the functions that read the data as a dataframe, and override functions to extract nodes and edges following the formats BioCypher expects. You can see this in the next snippet.
+Finally, write the functions that read the data as a DataFrame and override the functions to extract nodes and edges in the formats expected by BioCypher. This is illustrated in the next snippet.
 
 **File: `/template_package/adapters/adapter_synthetic_proteins.py`**
 ```python
-class AdapterEdgeType(Enum):
+def _read_csv(self) -> pd.DataFrame:
     """
-    Enum for the types of the protein adapter.
+    Reads and validates the TSV file.
+    Returns:
+        pd.DataFrame: DataFrame containing the TSV data.
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
     """
+    if not Path(self.csv_path).exists():
+        logger.error(f"CSV file not found: {self.csv_path}")
+        raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
+    df = pd.read_csv(self.csv_path, sep="\t", header=0)
+    required_columns = [
+        'source', 'target', 'source_genesymbol', 'target_genesymbol',
+        'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
+        'is_stimulation', 'is_inhibition', 'consensus_direction',
+        'consensus_stimulation', 'consensus_inhibition'
+    ]
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        logger.error(f"Missing columns in CSV: {missing}")
+        raise ValueError(f"CSV must contain columns: {missing}")
+    return df
 
-    PROTEIN_PROTEIN_INTERACTION = "protein_protein_interaction"
-    BINDING = "binding"
-    ACTIVATION = "activation"
-    PHOSPHORYLATION = "phosphorylation"
-    UBIQUITINATION = "ubiquitination"
-    INHIBITION = "inhibition"
-
-class AdapterProteinProteinEdgeField(Enum):
+def get_nodes(self) -> 'Generator[tuple[str, str, dict], None, None]':
     """
-    Define possible fields the adapter can provide for protein-protein edges.
+    Yields node tuples for node types specified in the adapter constructor.
+
+    Returns:
+        Generator[tuple[str, str, dict], None, None]:
+            Each tuple is (id, label, properties).
     """
+    logger.info("Reading nodes.")
+    df = self._read_csv()
 
-    INTERACTION_TYPE = "interaction_type"
-    INTERACTION_SOURCE = "interaction_source"
-    IS_STIMULATION = "is_stimulation"
-    IS_INHIBITION = "is_inhibition"
-    CONSENSUS_DIRECTION = "consensus_direction"
-    CONSENSUS_STIMULATION = "consensus_stimulation"
-    CONSENSUS_INHIBITION = "consensus_inhibition"
+    # Generator for nodes in the `source` column
+    for row in df.itertuples(index=False):            
+        id = row.source
+        input_label = "uniprot_protein"
 
-class Adapter:
-    def __init__(
-        self,
-        csv_path: str = CSV_FILE_PATH_SYNTHETIC_PROTEINS,
-        node_types: Optional[list] = None,
-        node_fields: Optional[list] = None,
-        edge_types: Optional[list] = None,
-        edge_fields: Optional[list] = None,
-    ):
-        self.csv_path = csv_path
-        self._set_types_and_fields(node_types, node_fields, edge_types, edge_fields)
+        properties = {
+            'genesymbol': row.source_genesymbol,
+            'ncbi_tax_id': row.ncbi_tax_id_source,
+            'entity_type': row.entity_type_source,
+        }
 
-    def _read_csv(self) -> pd.DataFrame:
-        """
-        Reads and validates the TSV file.
-        Returns:
-            pd.DataFrame: DataFrame containing the TSV data.
-        Raises:
-            FileNotFoundError: If the file does not exist.
-            ValueError: If required columns are missing.
-        """
-        if not Path(self.csv_path).exists():
-            logger.error(f"CSV file not found: {self.csv_path}")
-            raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
-        df = pd.read_csv(self.csv_path, sep="\t", header=0)
-        required_columns = [
-            'source', 'target', 'source_genesymbol', 'target_genesymbol',
-            'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
-            'is_stimulation', 'is_inhibition', 'consensus_direction',
-            'consensus_stimulation', 'consensus_inhibition'
-        ]
-        missing = [col for col in required_columns if col not in df.columns]
-        if missing:
-            logger.error(f"Missing columns in CSV: {missing}")
-            raise ValueError(f"CSV must contain columns: {missing}")
-        return df
+        yield(
+            id,
+            input_label,
+            properties
+        )
 
-    def get_nodes(self) -> 'Generator[tuple[str, str, dict], None, None]':
-        """
-        Yields node tuples for node types specified in the adapter constructor.
+    # Generator for nodes in the `target` column
+    for row in df.itertuples(index=False):            
+        id = row.target
+        input_label = "uniprot_protein"
 
-        Returns:
-            Generator[tuple[str, str, dict], None, None]:
-                Each tuple is (id, label, properties).
-        """
-        logger.info("Reading nodes.")
-        df = self._read_csv()
+        properties = {
+            'genesymbol': row.target_genesymbol,
+            'ncbi_tax_id': row.ncbi_tax_id_target,
+            'entity_type': row.entity_type_target,
+        }
 
-        # Generator for nodes in the `source` column
-        for row in df.itertuples(index=False):            
-            id = row.source
-            input_label = "uniprot_protein"
+        yield(
+            id,
+            input_label,
+            properties
+        )
 
-            properties = {
-                'genesymbol': row.source_genesymbol,
-                'ncbi_tax_id': row.ncbi_tax_id_source,
-                'entity_type': row.entity_type_source,
-            }
+def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
+    """
+    Yields edge tuples for edge types specified in the adapter constructor.
 
-            yield(
-                id,
-                input_label,
-                properties
-            )
+    Returns:
+        Generator[tuple[str, str, str, str, dict], None, None]:
+            Each tuple is (id, source, target, type, properties).
+    """
+    logger.info("Generating edges.")
+    df = self._read_csv()
 
-        # Generator for nodes in the `target` column
-        for row in df.itertuples(index=False):            
-            id = row.target
-            input_label = "uniprot_protein"
+    for row in df.itertuples(index=False):
+        # Concatenate source and target, i.e., "SOD1EGFR"
+        id = f"{row.source}{row.target}"
 
-            properties = {
-                'genesymbol': row.target_genesymbol,
-                'ncbi_tax_id': row.ncbi_tax_id_target,
-                'entity_type': row.entity_type_target,
-            }
+        source = row.source
+        
+        target = row.target
 
-            yield(
-                id,
-                input_label,
-                properties
-            )
+        type = row.type
 
-    def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
-        """
-        Yields edge tuples for edge types specified in the adapter constructor.
+        properties = {
+            'is_stimulation': row.is_stimulation,
+            'is_inhibition': row.is_inhibition,
+            'consensus_direction': row.consensus_direction,
+            'consensus_stimulation': row.consensus_stimulation,
+            'consensus_inhibition': row.consensus_inhibition
+        }
 
-        Returns:
-            Generator[tuple[str, str, str, str, dict], None, None]:
-                Each tuple is (id, source, target, type, properties).
-        """
-        logger.info("Generating edges.")
-        df = self._read_csv()
-
-        for row in df.itertuples(index=False):
-            # Concatenate source and target, i.e., "SOD1EGFR"
-            id = f"{row.source}{row.target}"
-
-            source = row.source
-            
-            target = row.target
-
-            type = row.type
-
-            properties = {
-                'is_stimulation': row.is_stimulation,
-                'is_inhibition': row.is_inhibition,
-                'consensus_direction': row.consensus_direction,
-                'consensus_stimulation': row.consensus_stimulation,
-                'consensus_inhibition': row.consensus_inhibition
-            }
-
-            yield (
-                id,
-                source,
-                target,
-                type,
-                properties
-            )
-
-    def get_node_count(self) -> int:
-        """
-        Returns the number of nodes generated by the adapter.
-
-        Returns:
-            int: Number of nodes generated.
-        """
-        return sum(1 for _ in self.get_nodes())
-
-    def _set_types_and_fields(self, node_types, node_fields, edge_types, edge_fields) -> None:
-        """
-        Sets the node and edge types and fields for the adapter.
-
-        Args:
-            node_types (Optional[list]): List of node types.
-            node_fields (Optional[list]): List of node fields.
-            edge_types (Optional[list]): List of edge types.
-            edge_fields (Optional[list]): List of edge fields.
-        """
-        if node_types:
-            self.node_types = node_types
-        else:
-            self.node_types = [type for type in AdapterNodeType]
-
-        if node_fields:
-            self.node_fields = node_fields
-        else:
-            self.node_fields = [
-                field
-                for field in chain(
-                    AdapterProteinField,
-                )
-            ]
-
-        if edge_types:
-            self.edge_types = edge_types
-        else:
-            self.edge_types = [type for type in AdapterEdgeType]
-
-        if edge_fields:
-            self.edge_fields = edge_fields
-        else:
-            self.edge_fields = [field for field in chain()]
+        yield (
+            id,
+            source,
+            target,
+            type,
+            properties
+        )
 
 ```
 
@@ -1160,19 +1085,19 @@ class Adapter:
 2.  Use BioCypher to automatically download the file with cache capabilities.
     **File: `create_knowledge_graph.py`**
     ```python
-        # Download the file with cache capabilities
-        url_dataset = (
-            "https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv"
-        )
+    # Download the file with cache capabilities
+    url_dataset = (
+        "https://zenodo.org/records/16745602/files/synthetic_protein_interactions.tsv"
+    )
 
-        resource = FileDownload(
-            name="protein-protein-interaction-dataset",  # Name of the resource
-            url_s=url_dataset,  # URL to the resource(s)
-            lifetime=7,  # seven days cache lifetime
-        )
-        paths = bc.download(resource)  # Downloads to '.cache' by default
+    resource = FileDownload(
+        name="protein-protein-interaction-dataset",  # Name of the resource
+        url_s=url_dataset,  # URL to the resource(s)
+        lifetime=7,  # seven days cache lifetime
+    )
+    paths = bc.download(resource)  # Downloads to '.cache' by default
 
-        print(f"Path to the resouce: {paths}")
+    print(f"Path to the resouce: {paths}")
     ```
 
 
@@ -1246,13 +1171,12 @@ class Adapter:
     ```
 
 > 📝 **Exercise:** 
-> Integrate the aforementioned snippets in a single file called `create_knowledge_graph.py` script and run it!
+> Integrate the aforementioned snippets in a single file called `create_knowledge_graph.py` script and **RUN IT**!
 
 > ✅ **Answer:** 
 > See the example below for a completed `create_knowledge_graph.yaml`.
 
 **File: `create_knowledge_graph.py`**
-
 ```python
 from biocypher import BioCypher, FileDownload
 from template_package.adapters.adapter_synthetic_proteins import (
@@ -1324,8 +1248,16 @@ bc.summary()
 
 ```
 
+#### Run the script
+
+You can execute the entire pipeline that loads, processes, and builds the graph by running the following command from the root folder of your project. The example below uses Poetry.
+```bash
+poetry run python create_knowledge_graph.py
+```
+
 > 🏆 **Note:** Once you complete the process, your terminal output should look similar to the following:
 
+**Terminal output:**
 ```markdown
 INFO -- This is BioCypher v0.10.1.
 INFO -- Logging into `biocypher-log/biocypher-20250818-133207.log`.
@@ -1380,42 +1312,43 @@ INFO -- No missing labels in input.
 
 ### Load the graph using an import script
 
-When you run the `create_knowledge_graph.py` script and this one has been successfully, it generated different CSV files and an import script that will load the graph data into Neo4j.
+When you run the `create_knowledge_graph.py` script and it completes successfully, it generates several CSV files and an import script to load the graph data into Neo4j.
 
-a. Look at a folder which name start with this `biocypher-out`. Every time you run the script a new folder inside `biocypher-out` is created with the timestamp. Inside the folder you should see the following:
+a. Look for a folder whose name starts with `biocypher-out`. Each time you run the script, a new folder is created inside `biocypher-out` with a timestamp. Inside this folder, you should see the following:
 
-🟨 : CSV files associated to **nodes**.
-🟧 : CSV files associated to **edges**.
-🟪 : import script
-
+🟨 CSV files associated to **nodes**.
+🟦 CSV files associated to **edges**.
+🟥 admin import script
 
 ```
 /biocypher-out
 └── 20250818143606
-    ├── 🟧 Activation-header.csv
-    ├── 🟧 Activation-part000.csv
-    ├── 🟧 Binding-header.csv
-    ├── 🟧 Binding-part000.csv
-    ├── 🟧 Inhibition-header.csv
-    ├── 🟧 Inhibition-part000.csv
-    ├── 🟪 neo4j-admin-import-call.sh
-    ├── 🟧 Phosphorylation-header.csv
-    ├── 🟧 Phosphorylation-part000.csv
+    ├── 🟦 Activation-header.csv
+    ├── 🟦 Activation-part000.csv
+    ├── 🟦 Binding-header.csv
+    ├── 🟦 Binding-part000.csv
+    ├── 🟦 Inhibition-header.csv
+    ├── 🟦 Inhibition-part000.csv
+    ├── 🟥 neo4j-admin-import-call.sh
+    ├── 🟦 Phosphorylation-header.csv
+    ├── 🟦 Phosphorylation-part000.csv
     ├── 🟨 Protein-header.csv
     ├── 🟨 Protein-part000.csv
-    ├── 🟧 Ubiquitination-header.csv
+    ├── 🟦 Ubiquitination-header.csv
 ```
+
 b. Stop the neo4j instance. You can do this on the GUI or in terminal. In terminal, you must locate the `neo4j` executable in the Neo4j instance path.
 
 ```bash
 <path of your Neo4j instance>/bin/neo4j stop
 ```
 
-b. Run the  `neo4j-admin-import-call.sh` script:
+c. Run the  `neo4j-admin-import-call.sh` script in your `biocypher-output/`:
 ```bash
-bash ./neo4j-admin-import-call.sh
+bash ./biocypher-out/20250819105300/neo4j-admin-import-call.sh
 ```
-c. If everything has been successfully, you should see in terminal something similar to this:
+
+d. If everything has been successfully, you should see in terminal something similar to this:
 
 ```
 Starting to import, output will be saved to: /home/egcarren/.config/neo4j-desktop/Application/Data/dbmss/dbms-08155706-b96e-4e74-a965-7d6d27b78db8/logs/neo4j-admin-import-2025-08-18.15.54.59.log
