@@ -332,6 +332,8 @@ To achieve this, ee can divide the process into three sections:
 
 <div align="center">
   <img src="./assets/biocypher_section_conf.png" alt="Protein interaction graph (model 3)" width="1000"/>
+  <br>
+  <em>Figure 8. Configuration step in the BioCypher pipeline.</em>
 </div>
 
 #### Create a schema for your graph
@@ -629,6 +631,8 @@ neo4j:
 
 <div align="center">
   <img src="./assets/biocypher_section_adapter.png" alt="BioCypher Adapter" width="1000"/>
+  <br>
+  <em>Figure 9. Adapter creation in the BioCypher pipeline.</em>
 </div>
 
 **Rationale:** An adapter allows you to efficiently transform, integrate, combine data from different sources ensuring compatibility with BioCypher's schema and streamlining the import process.
@@ -1076,6 +1080,8 @@ class Adapter:
 
 <div align="center">
   <img src="./assets/biocypher_section_script.png" alt="Protein interaction graph (model 3)" width="1000"/>
+  <br>
+  <em>Figure 10. BioCypher pipeline</em>
 </div>
 
 **Rationale:** Integrating all steps—downloading the dataset, loading the data, extracting nodes and edges, and exporting graph assets—into a single script streamlines the entire process. This approach makes it easier to build and manage the knowledge graph pipeline efficiently and reproducibly.
@@ -1477,7 +1483,7 @@ a. Connect to your instance and select the option *Query*.
 <div align="center">
   <img src="./assets/neo4j_explore_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 8. Query and Explore options to run on a Neo4j instance.</em>
+  <em>Figure 11. Query and Explore options to run on a Neo4j instance.</em>
 </div>
 
 b. Now, click on the asterisk under the Relationships category. You now should see your graph! Compare to the sketch you did previosly in this tutorial
@@ -1486,7 +1492,7 @@ b. Now, click on the asterisk under the Relationships category. You now should s
 <div align="center">
   <img src="./assets/neo4j_final_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 8. Neo4j graph based on our data.</em>
+  <em>Figure 12. Neo4j graph based on our data.</em>
 </div>
 
 
