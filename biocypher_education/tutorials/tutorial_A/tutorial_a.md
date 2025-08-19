@@ -1272,7 +1272,7 @@ poetry run python create_knowledge_graph.py
 **Terminal output:**
 ```markdown
 INFO -- This is BioCypher v0.10.1.
-INFO -- Logging into `biocypher-log/biocypher-20250818-133207.log`.
+INFO -- Logging into `biocypher-log/biocypher-20250818-153024.log`.
 INFO -- Running BioCypher with schema configuration from config/schema_config.yaml.
 INFO -- Loading cache file .cache/cache.json.
 INFO -- Use cached version from .cache/protein-protein-interaction-dataset.
@@ -1280,7 +1280,7 @@ Path to the resouce: ['.cache/protein-protein-interaction-dataset/synthetic_prot
 INFO -- Loading ontologies...
 INFO -- Instantiating OntologyAdapter class for https://github.com/biolink/biolink-model/raw/v3.2.1/biolink-model.owl.ttl.
 INFO -- Reading nodes.
-INFO -- Creating output directory `/home/hostname/tutorial-basics-biocypher/biocypher-out/20250818133208`.
+INFO -- Creating output directory `/home/hostname/tutorial-basics-biocypher/biocypher-out/20250818153026`.
 WARNING -- Duplicate node type protein found. 
 INFO -- Writing 15 entries to Protein-part000.csv
 INFO -- Generating edges.
@@ -1291,7 +1291,7 @@ INFO -- Writing 6 entries to Activation-part000.csv
 INFO -- Writing 3 entries to Phosphorylation-part000.csv
 INFO -- Writing 7 entries to Ubiquitination-part000.csv
 INFO -- Writing 2 entries to Inhibition-part000.csv
-INFO -- Writing neo4j import call to `/home/hostname/tutorial-basics-biocypher/biocypher-out/20250818133208/neo4j-admin-import-call.sh`.
+INFO -- Writing neo4j import call to `/home/hostname/tutorial-basics-biocypher/biocypher-out/20250818153026/neo4j-admin-import-call.sh`.
 INFO -- Showing ontology structure based on https://github.com/biolink/biolink-model/raw/v3.2.1/biolink-model.owl.ttl
 INFO -- 
 entity
@@ -1336,7 +1336,7 @@ a. Look for a folder whose name starts with `biocypher-out`. Each time you run t
 
 ```
 /biocypher-out
-└── 20250818143606
+└── 20250818153026
     ├── 🟦 Activation-header.csv
     ├── 🟦 Activation-part000.csv
     ├── 🟦 Binding-header.csv
@@ -1359,7 +1359,7 @@ b. Stop the neo4j instance. You can do this on the GUI or in terminal. In termin
 
 c. Run the  `neo4j-admin-import-call.sh` script in your `biocypher-output/`:
 ```bash
-bash ./biocypher-out/20250819105300/neo4j-admin-import-call.sh
+bash ./biocypher-out/20250818153026/neo4j-admin-import-call.sh
 ```
 
 d. If everything has been successfully, you should see in terminal something similar to this:
@@ -1369,21 +1369,21 @@ Starting to import, output will be saved to: /home/egcarren/.config/neo4j-deskto
 Neo4j version: 2025.07.1
 Importing the contents of these files into /home/egcarren/.config/neo4j-desktop/Application/Data/dbmss/dbms-08155706-b96e-4e74-a965-7d6d27b78db8/data/databases/neo4j:
 Nodes:
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Protein-header.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Protein-part000.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Protein-header.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Protein-part000.csv
 
 Relationships:
   null:
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Phosphorylation-header.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Phosphorylation-part000.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Ubiquitination-header.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Ubiquitination-part000.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Inhibition-header.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Inhibition-part000.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Activation-header.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Activation-part000.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Binding-header.csv
-  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818155354/Binding-part000.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Phosphorylation-header.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Phosphorylation-part000.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Ubiquitination-header.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Ubiquitination-part000.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Inhibition-header.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Inhibition-part000.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Activation-header.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Activation-part000.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Binding-header.csv
+  /home/egcarren/Downloads/sandbox_edwin/tutorial-basics-biocypher/biocypher-out/20250818153026/Binding-part000.csv
 
 
 Available resources:
