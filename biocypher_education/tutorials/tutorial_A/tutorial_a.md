@@ -315,7 +315,7 @@ We aim to create a knowledge graph using the data we found in the CSV file. Let'
 
 - We must export the knowledge graph to Neo4j.
 
-To achieve this, ee can divide the process into three sections:
+To achieve this, we can divide the process into three sections:
 1. Configuration.
     - Schema configuration
     - BioCypher configuration 
@@ -639,7 +639,7 @@ neo4j:
 
 a. Create a file called `adapter_synthetic_proteins.py` under the folder `/template_package/adapters/`, in this file we are going to create our adapter.
 
-b. Write classes for the different nodes and their properties in our graph. For now, focus on analyzing the following snippet and compare it with the node elements expected in our schema file (`schema_file.yaml`).
+b. Write classes for the different nodes and their properties in our graph. For now, focus on analyzing the following snippet and compare it with the node elements expected in our schema file (`schema_config.yaml`).
 
 **File: `/template_package/adapters/adapter_synthetic_proteins.py`**
 ```python
@@ -660,7 +660,7 @@ class AdapterProteinField(Enum):
     GENE_SYMBOL = "genesymbol"
     NCBI_TAX_ID = "ncbi_tax_id"
 ```
-c. Write classes for the different edges and their properties in our graph. For now, analyze the following snippet and compare it with the edge elements expected in our schema file (`schema_file.yaml`).
+c. Write classes for the different edges and their properties in our graph. For now, analyze the following snippet and compare it with the edge elements expected in our schema file (`schema_config.yaml`).
 
 **File: `/template_package/adapters/adapter_synthetic_proteins.py`**
 ```python
