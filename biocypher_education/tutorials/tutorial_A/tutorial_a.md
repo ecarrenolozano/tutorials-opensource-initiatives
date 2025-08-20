@@ -149,7 +149,8 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     ```bash
     mkdir -p ./notebooks/
     ```
-- Create and run either a Python file or a Jupyter notebook (if Jupyter is installed in your environment) containing the following code. 
+- Create and run either a Python file or a Jupyter notebook (if Jupyter is installed in your environment) containing the following code.
+
     **File: `notebooks/eda_synthetic_data.py`**
     ```python
     import pandas as pd
@@ -316,16 +317,16 @@ We aim to create a knowledge graph using the data we found in the CSV file. Let'
 - We must export the knowledge graph to Neo4j.
 
 To achieve this, we can divide the process into three sections:
-1. Configuration.
-    - Schema configuration
-    - BioCypher configuration 
+1. [Configuration](#step-1-configuration).
+    - [Schema configuration](#create-a-schema-for-your-graph)
+    - [BioCypher configuration](#configure-biocypher-behavior) 
 
-2. Adapter creation.
+2. [Adapter creation](#step-2-create-an-adapter).
      - Read/connect to input data
      - Process data
      - Stream processed data
 
-3. Knowledge Graph script
+3. [Knowledge Graph script](#step-3-create-a-knowledge-graph-script)
 
 
 ### Step 1. Configuration
@@ -426,7 +427,7 @@ binding:
 # ...rest of schema_config.yaml omitted for brevity...
 ```
 
-- Option 2: Create a base edge with the properties, and then create edges that inherit the behavior of this base edge. This approach reduces lines of code and avoids repetition. For example, if you have more than 20 edges, Option 1 would likely not be practical.
+- Option 2(**recommended**): Create a base edge with the properties, and then create edges that inherit the behavior of this base edge. This approach reduces lines of code and avoids repetition. For example, if you have more than 20 edges, Option 1 would likely not be practical.
 
 **File: `config/schema_config.yaml`**
 ```yaml
