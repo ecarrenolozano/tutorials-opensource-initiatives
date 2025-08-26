@@ -152,6 +152,10 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
 - Create and run either a Python file or a Jupyter notebook (if Jupyter is installed in your environment) containing the following code.
 
     **File: `notebooks/eda_synthetic_data.py`**
+
+    <details>
+    <summary>notebooks/eda_synthetic_data.py</summary>
+
     ```python
     import pandas as pd
 
@@ -185,6 +189,8 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     print('Unique proteins in column protein_b:', df['target'].nunique())
     
     ```
+
+    </details>
     
 > 📝 **Exercise:** 
 > a. How many unique proteins do we have in the dataset?
