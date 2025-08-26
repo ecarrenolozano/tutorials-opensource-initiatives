@@ -193,11 +193,11 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     <!-- </details> -->
     
 > 📝 **Exercise:** 
-
+>
 > a. How many unique proteins do we have in the dataset?
-
+>
 > b. How many interactions exist in our dataset?
-
+>
 > c. Some columns contain boolean values represented as 1s and 0s. Can you detect which ones?
 
 <!-- > ✅ **Answer:** 
@@ -515,8 +515,9 @@ The `activation:` top-level key in the YAML snippet identifies our edge entity.
 
 <details>
 <summary>✅ <strong>Answer:</strong> </strong></summary>
-See the example below for a completed `schema_config.yaml`.
-<strong>File: <code>config/schema_config.yaml</code></strong>
+See the example below for a completed <code>schema_config.yaml</code>.
+
+**File: `config/schema_config.yaml`**
 
 ```yaml
 #-------------------------------------------------------------------
@@ -629,8 +630,9 @@ The default configuration that comes with BioCypher and more configuration param
 > 📝 **Exercise:** 
 > Revise and complete the `biocypher_config.yaml` file, and make sure it is located in the `config` folder.
 
-> ✅ **Answer:** 
-> See the example below for a completed `biocypher_config.yaml`. Note, the path in the  `import_call_bin_prefix` correspond to my personal instance, **you MUST update this path with yours, do not forget to add /bin/** as in my example
+<details>
+<summary>✅ <strong>Answer:</strong> </strong></summary>
+See the example below for a completed <code>biocypher_config.yaml</code>. Note, the path in the  <code>import_call_bin_prefix</code> correspond to my personal instance, <strong>you MUST update this path with yours, do not forget to add /bin/</strong> as in my example
 
 **File: `biocypher_config.yaml`**
 ```yaml
@@ -654,6 +656,7 @@ neo4j:
   skip_bad_relationships: true
   import_call_bin_prefix: /home/egcarren/.config/neo4j-desktop/Application/Data/dbmss/dbms-08155706-b96e-4e74-a965-7d6d27b78db8/bin/
 ```
+</details>
 
 ### Step 2. Create an adapter
 
@@ -884,13 +887,12 @@ def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
 > 📝 **Exercise:** 
 > Integrate the aforementioned snippets in a single file call `adapter_synthetic_proteins.py`.
 
-> ✅ **Answer:** 
-> See the example below for a completed `adapter_synthetic_proteins.py`.
-
-<!-- **File: `/template_package/adapters/adapter_synthetic_proteins.py`** -->
-
 <details>
-<summary><strong>File: <code>/template_package/adapters/adapter_synthetic_proteins.py</code></strong></summary>
+<summary>✅ <strong>Answer:</strong> </strong></summary>
+See the example below for a completed <code>adapter_synthetic_proteins.py</code>.
+
+**File: `/template_package/adapters/adapter_synthetic_proteins.py`**
+
 
 ```python
 import os
@@ -1229,13 +1231,11 @@ class Adapter:
 > 📝 **Exercise:** 
 > Integrate the aforementioned snippets in a single file called `create_knowledge_graph.py` script and **RUN IT**!
 
-> ✅ **Answer:** 
-> See the example below for a completed `create_knowledge_graph.yaml`.
-
-<!-- **File: `create_knowledge_graph.py`** -->
-
 <details>
-<summary><strong>File: <code>create_knowledge_graph.py</code></strong></summary>
+<summary>✅ <strong>Answer:</strong> </strong></summary>
+See the example below for a completed <code>create_knowledge_graph.yaml</code>.
+
+**File: `create_knowledge_graph.py`**
 
 
 ```python
