@@ -153,8 +153,8 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
 
     **File: `notebooks/eda_synthetic_data.py`**
 
-    <details>
-    <summary>notebooks/eda_synthetic_data.py</summary>
+    <!-- <details>
+    <summary><strong>File: <code>notebooks/eda_synthetic_data.py</code></strong></summary> -->
 
     ```python
     import pandas as pd
@@ -190,17 +190,29 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     
     ```
 
-    </details>
+    <!-- </details> -->
     
 > 📝 **Exercise:** 
+
 > a. How many unique proteins do we have in the dataset?
+
 > b. How many interactions exist in our dataset?
+
 > c. Some columns contain boolean values represented as 1s and 0s. Can you detect which ones?
 
-> ✅ **Answer:** 
+<!-- > ✅ **Answer:** 
 > a. Number of unique proteins: 15.
 > b. Number of unique interactions: 22.
-> c. `is_directed`, `is_stimulation`, `is_inhibition`, `consensus_direction`, `consensus_stimulation`,`consensus_inhibition`.
+> c. `is_directed`, `is_stimulation`, `is_inhibition`, `consensus_direction`, `consensus_stimulation`,`consensus_inhibition`. -->
+
+<details>
+<summary>✅ <strong>Answer:</strong> </strong></summary>
+a. Number of unique proteins: 15.
+
+b. Number of unique interactions: 22.
+
+c. `is_directed`, `is_stimulation`, `is_inhibition`, `consensus_direction`, `consensus_stimulation`,`consensus_inhibition`.
+</details>
 
 
 ## Section 2. Graph Modeling
@@ -270,8 +282,9 @@ Finally, we can create a more detailed graph using our dataset. Rather than repr
 > 📝 **Exercise:** 
 > Sketch a portion of the knowledge graph using the provided dataset.
 
-> ✅ **Answer:** 
-> If you include all the nodes and edges from your CSV file, your sketch should look like the following example:
+<details>
+<summary>✅ <strong>Answer:</strong> </strong></summary>
+If you include all the nodes and edges from your CSV file, your sketch should look like the following example:
 
 ```mermaid
 graph LR
@@ -300,6 +313,7 @@ graph LR
     EGFR((EGFR))   -- binding --> SOD1((SOD1))
 
 ```
+</details>
 
 ## Section 3. Graph creation with BioCypher
 
@@ -494,10 +508,16 @@ The `activation:` top-level key in the YAML snippet identifies our edge entity.
 > 📝 **Exercise:** 
 > Revise and complete the `schema_config.yaml` file, and make sure it is located in the `config` folder.
 
-> ✅ **Answer:** 
-> See the example below for a completed `schema_config.yaml`.
+<!-- > ✅ **Answer:** 
+> See the example below for a completed `schema_config.yaml`. -->
 
-**File: `config/schema_config.yaml`**
+<!-- **File: `config/schema_config.yaml`** -->
+
+<details>
+<summary>✅ <strong>Answer:</strong> </strong></summary>
+See the example below for a completed `schema_config.yaml`.
+<strong>File: <code>config/schema_config.yaml</code></strong>
+
 ```yaml
 #-------------------------------------------------------------------
 #-------------------------      NODES      -------------------------
@@ -554,6 +574,7 @@ ubiquitination:
     input_label: ubiquitination
 
 ```
+</details>
 
 #### Configure BioCypher behavior
 
@@ -744,6 +765,11 @@ BioCypher expects each edge being a **5-element tuple**, with elements in the fo
 Finally, write the functions that read the data as a DataFrame and override the functions to extract nodes and edges in the formats expected by BioCypher. This is illustrated in the next snippet.
 
 **File: `/template_package/adapters/adapter_synthetic_proteins.py`**
+
+<!-- <details>
+<summary><strong>File: <code>/template_package/adapters/adapter_synthetic_proteins.py</code></strong></summary> -->
+
+
 ```python
 def _read_csv(self) -> pd.DataFrame:
     """
@@ -853,6 +879,7 @@ def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
         )
 
 ```
+<!-- </details> -->
 
 > 📝 **Exercise:** 
 > Integrate the aforementioned snippets in a single file call `adapter_synthetic_proteins.py`.
@@ -860,7 +887,11 @@ def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
 > ✅ **Answer:** 
 > See the example below for a completed `adapter_synthetic_proteins.py`.
 
-**File: `/template_package/adapters/adapter_synthetic_proteins.py`**
+<!-- **File: `/template_package/adapters/adapter_synthetic_proteins.py`** -->
+
+<details>
+<summary><strong>File: <code>/template_package/adapters/adapter_synthetic_proteins.py</code></strong></summary>
+
 ```python
 import os
 from enum import Enum, auto
@@ -971,7 +1002,7 @@ class Adapter:
             id = row.source
             input_label = "uniprot_protein"
 
-            properties = {
+            properties = {<details>
                 'genesymbol': row.source_genesymbol,
                 'ncbi_tax_id': row.ncbi_tax_id_source,
                 'entity_type': row.entity_type_source,
@@ -1081,7 +1112,7 @@ class Adapter:
         else:
             self.edge_fields = [field for field in chain()]
 ```
-
+</details>
 
 ### Step 3. Create a knowledge graph script
 
@@ -1201,7 +1232,12 @@ class Adapter:
 > ✅ **Answer:** 
 > See the example below for a completed `create_knowledge_graph.yaml`.
 
-**File: `create_knowledge_graph.py`**
+<!-- **File: `create_knowledge_graph.py`** -->
+
+<details>
+<summary><strong>File: <code>create_knowledge_graph.py</code></strong></summary>
+
+
 ```python
 from biocypher import BioCypher, FileDownload
 from template_package.adapters.adapter_synthetic_proteins import (
@@ -1272,6 +1308,7 @@ bc.write_import_call()
 bc.summary()
 
 ```
+</details>
 
 #### Run the script
 
@@ -1282,7 +1319,11 @@ poetry run python create_knowledge_graph.py
 
 > 🏆 **Note:** Once you complete the process, your terminal output should look similar to the following:
 
-**Terminal output:**
+<!-- **Terminal output:** -->
+
+<details>
+<summary><b>Terminal output:</b></summary>
+
 ```markdown
 INFO -- This is BioCypher v0.10.1.
 INFO -- Logging into `biocypher-log/biocypher-20250818-153024.log`.
@@ -1332,6 +1373,7 @@ INFO -- Duplicate edge types encountered (IDs in log):
 
 INFO -- No missing labels in input.
 ```
+</details>
 
 ## Section 4. Interacting with your graph using Neo4j
 
@@ -1376,6 +1418,9 @@ bash ./biocypher-out/20250818153026/neo4j-admin-import-call.sh
 ```
 
 d. If everything has been successfully, you should see in terminal something similar to this:
+
+<details>
+<summary><b>Terminal output:</b></summary>
 
 ```
 Starting to import, output will be saved to: /home/egcarren/.config/neo4j-desktop/Application/Data/dbmss/dbms-08155706-b96e-4e74-a965-7d6d27b78db8/logs/neo4j-admin-import-2025-08-18.15.54.59.log
@@ -1483,6 +1528,7 @@ Flushing stores
 Flush completed in 18ms
 IMPORT DONE in 1s 488ms.
 ```
+</details>
 
 ### Visualize the graph
 a. Connect to your instance and select the option *Query*.
