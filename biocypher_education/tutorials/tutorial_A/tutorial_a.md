@@ -1,4 +1,4 @@
-# 🧑‍💻 Hands-On Protein Graphs with BioCypher and Neo4j
+# 🧑‍💻 Hands-On Protein Graphs with BioCypher (offline mode) and Neo4j
 
 
 | Last Update | Developed by                       | Affiliation                                                                                                                                                                  |
@@ -18,7 +18,7 @@
 
 ## Overview
 
-This tutorial will help you get started with BioCypher. You will learn how to create a simple knowledge graph with a synthetic dataset that contains information about proteins and its interactions.
+This tutorial will help you get started with BioCypher in offline mode. You will learn how to create a simple knowledge graph with a synthetic dataset that contains information about proteins and its interactions.
 
 By the end of this tutorial, you will be able to:
 
@@ -88,6 +88,8 @@ In this section, you will set up your working environment using the BioCypher Pr
 poetry install --no-root
 ```
 
+> ***Note**: If you use pip or conda, manually install each dependency listed in `pyproject.toml`.*
+
 **Using pip:**
 ```bash
 python -m venv .venv
@@ -102,7 +104,7 @@ conda activate myenv
 pip install biocypher==0.10.1
 ```
 
-> *Note: If you use pip or conda, manually install each dependency listed in `pyproject.toml`.*
+
 
 ### Setup Neo4j
 
@@ -123,12 +125,19 @@ b. Create a new instance in Neo4j. For this tutorial, name it `neo4j-tutorial-in
   <em>Figure 2. Create Instance window. This may vary depending on your Neo4j version.</em>
 </div>
 
-c. Check the details of your Neo4j instance. It is important to know the exact location, as we will use this path throughout the tutorial.
+c. Access details in the option *Overview*.
+<div align="center">
+  <img src="./assets/neo4j_overview_option.png" alt="Protein interaction graph (model 1)" width="800"/>
+  <br>
+  <em>Figure 3. *Overview* option to check details related to your Neo4j instance.</em>
+</div>
+
+d. Save the path to your Neo4j instance, we are going to use this path later in this tutorial.
 
 <div align="center">
   <img src="./assets/neo4j_folder_details.png" alt="Protein interaction graph (model 1)" width="800"/>
   <br>
-  <em>Figure 3. Neo4j instance with its path location highlighted.</em>
+  <em>Figure 4. Neo4j instance with its path location highlighted.</em>
 </div>
 
 
@@ -160,7 +169,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     import pandas as pd
 
     # Load the dataset
-    df = pd.read_csv('../data/in/synthetic_protein_interactions.tsv', sep='\t')
+    df = pd.read_table('../data/in/synthetic_protein_interactions.tsv', sep='\t')
 
     # Show the first few rows
     print("\n---- First 10 rows in the dataset")
@@ -218,12 +227,12 @@ c. `is_directed`, `is_stimulation`, `is_inhibition`, `consensus_direction`, `con
 ## Section 2. Graph Modeling
 ### Graph Modeling
 
-By looking at the CSV file, we can see that there are two columns called `source` and `target`, which represent proteins. This means that each row represents an interaction between a source protein and a target protein. For now, our graph could look like this.
+By looking at the TSV file, we can see that there are two columns called `source` and `target`, which represent proteins. This means that each row represents an interaction between a source protein and a target protein. For now, our graph could look like this.
 
 <div align="center">
   <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="400"/>
   <br>
-  <em>Figure 4. Simple graph model for representing interactions between proteins</em>
+  <em>Figure 5. Simple graph model for representing interactions between proteins</em>
 </div>
 <br>
 
@@ -244,7 +253,7 @@ Can we improve the graph? Absolutely! Understanding the data is essential for bu
 <div align="center">
   <img src="./assets/model_graph_2.png" alt="Protein interaction graph (model 2)" width="400"/>
     <br>
-  <em>Figure 5. Simple protein interaction graph with properties in nodes</em>
+  <em>Figure 6. Simple protein interaction graph with properties in nodes</em>
 </div>
 <br>
 
@@ -265,7 +274,7 @@ We are ready to model our second version of our graph. It is like follows:
 <div align="center">
   <img src="./assets/model_graph_3.png" alt="Protein interaction graph (model 3)" width="400"/>
     <br>
-  <em>Figure 6. Protein interaction graph showing node and edge properties</em>
+  <em>Figure 7. Protein interaction graph showing node and edge properties</em>
 </div>
 <br>
 
@@ -274,7 +283,7 @@ Finally, we can create a more detailed graph using our dataset. Rather than repr
 <div align="center">
   <img src="./assets/model_graph_4.png" alt="Protein interaction graph (model 4)" width="550"/>
       <br>
-  <em>Figure 7. Graph model for representing different interactions between proteins</em>
+  <em>Figure 8. Graph model for representing different interactions between proteins</em>
 </div>
 
 ### Exercise 1. Example of a graph we expect with our data
@@ -284,7 +293,7 @@ Finally, we can create a more detailed graph using our dataset. Rather than repr
 
 <details>
 <summary>✅ <strong>Answer:</strong> </strong></summary>
-If you include all the nodes and edges from your CSV file, your sketch should look like the following example:
+If you include all the nodes and edges from your TSV file, your sketch should look like the following example:
 
 ```mermaid
 graph LR
@@ -317,7 +326,7 @@ graph LR
 
 ## Section 3. Graph creation with BioCypher
 
-We aim to create a knowledge graph using the data we found in the CSV file. Let's recap our exercise:
+We aim to create a knowledge graph using the data we found in the TSV file. Let's recap our exercise:
 
 - Create a **graph** with the following characteristics:
   - One node type: `Protein`.
@@ -354,7 +363,7 @@ To achieve this, we can divide the process into three sections:
 <div align="center">
   <img src="./assets/biocypher_section_conf.png" alt="Protein interaction graph (model 3)" width="1000"/>
   <br>
-  <em>Figure 8. Configuration step in the BioCypher pipeline.</em>
+  <em>Figure 9. Configuration step in the BioCypher pipeline.</em>
 </div>
 
 #### Create a schema for your graph
@@ -618,7 +627,7 @@ The second block is the Database Management System Settings, which starts with t
 
 | key                      | value             | description                                          |
 | ------------------------ | ----------------- | ---------------------------------------------------- |
-| `delimiter`              | `'\t'`            | Field delimiter for CSV import files                 |
+| `delimiter`              | `'\t'`            | Field delimiter for TSV import files                 |
 | `array_delimiter`        | `';'`             | Delimiter for array values                           |
 | `skip_duplicate_nodes`   | `true`            | Whether to skip duplicate nodes during import        |
 | `skip_bad_relationships` | `true`            | Whether to skip relationships with missing endpoints |
@@ -663,7 +672,7 @@ neo4j:
 <div align="center">
   <img src="./assets/biocypher_section_adapter.png" alt="BioCypher Adapter" width="1000"/>
   <br>
-  <em>Figure 9. Adapter creation in the BioCypher pipeline.</em>
+  <em>Figure 10. Adapter creation in the BioCypher pipeline.</em>
 </div>
 
 **Rationale:** An adapter allows you to efficiently transform, integrate, combine data from different sources ensuring compatibility with BioCypher's schema and streamlining the import process.
@@ -774,7 +783,7 @@ Finally, write the functions that read the data as a DataFrame and override the 
 
 
 ```python
-def _read_csv(self) -> pd.DataFrame:
+def _read_tsv(self) -> pd.DataFrame:
     """
     Reads and validates the TSV file.
     Returns:
@@ -783,10 +792,10 @@ def _read_csv(self) -> pd.DataFrame:
         FileNotFoundError: If the file does not exist.
         ValueError: If required columns are missing.
     """
-    if not Path(self.csv_path).exists():
-        logger.error(f"CSV file not found: {self.csv_path}")
-        raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
-    df = pd.read_csv(self.csv_path, sep="\t", header=0)
+    if not Path(self.tsv_path).exists():
+        logger.error(f"TSV file not found: {self.tsv_path}")
+        raise FileNotFoundError(f"TSV file not found: {self.tsv_path}")
+    df = pd.read_table(self.tsv_path, sep="\t", header=0)
     required_columns = [
         'source', 'target', 'source_genesymbol', 'target_genesymbol',
         'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
@@ -795,8 +804,8 @@ def _read_csv(self) -> pd.DataFrame:
     ]
     missing = [col for col in required_columns if col not in df.columns]
     if missing:
-        logger.error(f"Missing columns in CSV: {missing}")
-        raise ValueError(f"CSV must contain columns: {missing}")
+        logger.error(f"Missing columns in TSV: {missing}")
+        raise ValueError(f"TSV must contain columns: {missing}")
     return df
 
 def get_nodes(self) -> 'Generator[tuple[str, str, dict], None, None]':
@@ -808,7 +817,7 @@ def get_nodes(self) -> 'Generator[tuple[str, str, dict], None, None]':
             Each tuple is (id, label, properties).
     """
     logger.info("Reading nodes.")
-    df = self._read_csv()
+    df = self._read_tsv()
 
     # Generator for nodes in the `source` column
     for row in df.itertuples(index=False):            
@@ -853,7 +862,7 @@ def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
             Each tuple is (id, source, target, type, properties).
     """
     logger.info("Generating edges.")
-    df = self._read_csv()
+    df = self._read_tsv()
 
     for row in df.itertuples(index=False):
         # Concatenate source and target, i.e., "SOD1EGFR"
@@ -907,7 +916,7 @@ from biocypher import BioCypher
 from biocypher._logger import logger
 
 
-CSV_FILE_PATH_SYNTHETIC_PROTEINS = Path("./cache/synthetic_protein_interactions.tsv")
+TSV_FILE_PATH_SYNTHETIC_PROTEINS = Path("./cache/synthetic_protein_interactions.tsv")
 
 class AdapterNodeType(Enum):
     """
@@ -954,16 +963,16 @@ class AdapterProteinProteinEdgeField(Enum):
 class Adapter:
     def __init__(
         self,
-        csv_path: str = CSV_FILE_PATH_SYNTHETIC_PROTEINS,
+        tsv_path: str = TSV_FILE_PATH_SYNTHETIC_PROTEINS,
         node_types: Optional[list] = None,
         node_fields: Optional[list] = None,
         edge_types: Optional[list] = None,
         edge_fields: Optional[list] = None,
     ):
-        self.csv_path = csv_path
+        self.tsv_path = tsv_path
         self._set_types_and_fields(node_types, node_fields, edge_types, edge_fields)
 
-    def _read_csv(self) -> pd.DataFrame:
+    def _read_tsv(self) -> pd.DataFrame:
         """
         Reads and validates the TSV file.
         Returns:
@@ -972,10 +981,10 @@ class Adapter:
             FileNotFoundError: If the file does not exist.
             ValueError: If required columns are missing.
         """
-        if not Path(self.csv_path).exists():
-            logger.error(f"CSV file not found: {self.csv_path}")
-            raise FileNotFoundError(f"CSV file not found: {self.csv_path}")
-        df = pd.read_csv(self.csv_path, sep="\t", header=0)
+        if not Path(self.tsv_path).exists():
+            logger.error(f"TSV file not found: {self.tsv_path}")
+            raise FileNotFoundError(f"TSV file not found: {self.tsv_path}")
+        df = pd.read_table(self.tsv_path, sep="\t", header=0)
         required_columns = [
             'source', 'target', 'source_genesymbol', 'target_genesymbol',
             'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
@@ -984,8 +993,8 @@ class Adapter:
         ]
         missing = [col for col in required_columns if col not in df.columns]
         if missing:
-            logger.error(f"Missing columns in CSV: {missing}")
-            raise ValueError(f"CSV must contain columns: {missing}")
+            logger.error(f"Missing columns in TSV: {missing}")
+            raise ValueError(f"TSV must contain columns: {missing}")
         return df
 
     def get_nodes(self) -> 'Generator[tuple[str, str, dict], None, None]':
@@ -997,7 +1006,7 @@ class Adapter:
                 Each tuple is (id, label, properties).
         """
         logger.info("Reading nodes.")
-        df = self._read_csv()
+        df = self._read_tsv()
 
         # Generator for nodes in the `source` column
         for row in df.itertuples(index=False):            
@@ -1042,7 +1051,7 @@ class Adapter:
                 Each tuple is (id, source, target, type, properties).
         """
         logger.info("Generating edges.")
-        df = self._read_csv()
+        df = self._read_tsv()
 
         for row in df.itertuples(index=False):
             # Concatenate source and target, i.e., "SOD1EGFR"
@@ -1121,7 +1130,7 @@ class Adapter:
 <div align="center">
   <img src="./assets/biocypher_section_script.png" alt="Protein interaction graph (model 3)" width="1000"/>
   <br>
-  <em>Figure 10. BioCypher pipeline</em>
+  <em>Figure 11. BioCypher pipeline</em>
 </div>
 
 **Rationale:** Integrating all steps—downloading the dataset, loading the data, extracting nodes and edges, and exporting graph assets—into a single script streamlines the entire process. This approach makes it easier to build and manage the knowledge graph pipeline efficiently and reproducibly.
@@ -1196,7 +1205,7 @@ class Adapter:
 
     # Create an adapter instance
     adapter = Adapter(
-        csv_path = paths[0],
+        tsv_path = paths[0],
         node_types=node_types,
         node_fields=node_fields,
         edge_types=edge_types,
@@ -1212,7 +1221,7 @@ class Adapter:
     bc.write_edges(adapter.get_edges())
     ```
 
-5. Export your graph to Neo4j (generation of CSV files and import script)
+5. Export your graph to Neo4j (generation of TSV files and import script)
 
     **File: `create_knowledge_graph.py`**
     ```python
@@ -1291,7 +1300,7 @@ edge_types = [
 
 # Create an adapter instance
 adapter = Adapter(
-    csv_path=paths[0],
+    tsv_path=paths[0],
     node_types=node_types,
     node_fields=node_fields,
     edge_types=edge_types,
@@ -1536,7 +1545,7 @@ a. Connect to your instance and select the option *Query*.
 <div align="center">
   <img src="./assets/neo4j_explore_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 11. Query and Explore options to run on a Neo4j instance.</em>
+  <em>Figure 12. Query and Explore options to run on a Neo4j instance.</em>
 </div>
 
 b. Now, click on the asterisk under the Relationships category. You now should see your graph! Compare to the sketch you did previosly in this tutorial
@@ -1545,7 +1554,7 @@ b. Now, click on the asterisk under the Relationships category. You now should s
 <div align="center">
   <img src="./assets/neo4j_final_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 12. Neo4j graph based on our data.</em>
+  <em>Figure 13. Neo4j graph based on our data.</em>
 </div>
 
 
