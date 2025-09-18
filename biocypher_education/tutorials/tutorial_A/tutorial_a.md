@@ -3,7 +3,7 @@
 
 | Last Update | Developed by                       | Affiliation                                                                                                                                                                  |
 | :---------: | :--------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2025.08.19  | Shuangshuang Li <br> Edwin Carreño | [Scientific Software Center](https://www.ssc.uni-heidelberg.de/en) <br> [Saezlab](https://saezlab.org/) - [Scientific Software Center](https://www.ssc.uni-heidelberg.de/en) |
+| 2025.09.18  | Shuangshuang Li <br> Edwin Carreño | [Scientific Software Center](https://www.ssc.uni-heidelberg.de/en) <br> [Saezlab](https://saezlab.org/) - [Scientific Software Center](https://www.ssc.uni-heidelberg.de/en) |
 
 
 ## Table of Contents
@@ -36,8 +36,9 @@ By the end of this tutorial, you will be able to:
 | ------ | ------------------- | -------------------------------------------------- | ------------------------- |
 | Git    | Any                 | [Git Docs](https://git-scm.com/downloads)          | For version control       |
 | Neo4j  | >=1.6               | [Neo4j Desktop](https://neo4j.com/download/)       | For querying graphs       |
-| Poetry | 1.8.x               | [Poetry Docs](https://python-poetry.org/docs/1.8/) | For dependency management |
+| Poetry (optional) | 1.8.x    | [Poetry Docs](https://python-poetry.org/docs/1.8/) | For dependency management |
 | Python | >= 3.10             | [Python.org](https://www.python.org/downloads/)    | Required for BioCypher    |
+| Jupyter (optional) | Any     | [Jupter](https://jupyter.org/)                     | Required for exploring the sample data |
 
 
 ## Setup
@@ -48,23 +49,12 @@ In this section, you will set up your working environment using the BioCypher Pr
 
 **Steps:**
 
-1. Clone the [BioCypher Project Template](https://github.com/biocypher/project-template) and rename the folder as `tutorial-basics-biocypher`:
+1. Go to the [BioCypher Project Template](https://github.com/biocypher/project-template) and click on "Use this template". Name your repository as `tutorial-basics-biocypher`. Then clone your repository to obtain a local copy:
     ```bash
-    git clone https://github.com/biocypher/project-template.git
-    mv project-template tutorial-basics-biocypher
-    cd tutorial-basics-biocypher
+    git clone <your-repository-url>
     ```
 
-2. Initialize your own Git repository:
-    ```bash
-    rm -rf .git
-    git init
-    git checkout -b main
-    git add .
-    git commit -m "Initial commit"
-    ```
-
-3. Check the current project structure. Below, we list the most important folders and files for this tutorial.
+2. Check the current project structure. Below, we list the most important folders and files for this tutorial.
 
     ```
     /tutorial-basics-biocypher
@@ -81,43 +71,36 @@ In this section, you will set up your working environment using the BioCypher Pr
     ```
 
 
-4. Install the dependencies using your preferred tool (Poetry, pip, or conda):
+3. Install the dependencies using your preferred package manager (i.e. Poetry or pip):
+
+You should always first create a dedicated Python environment for your project, and then install the dependencies into the environment. Environments can be managed by [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html), [poetry](https://python-poetry.org/docs/managing-environments/) or [venv](https://docs.python.org/3/library/venv.html), for example.
+
+After you have created your environment, activate the environment and install the required packages using your preferred package manager.
 
 **Using Poetry:**
 ```bash
 poetry install --no-root
 ```
 
-> ***Note**: If you use pip or conda, manually install each dependency listed in `pyproject.toml`.*
-
 **Using pip:**
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install biocypher==0.10.1
+pip install .
 ```
 
-**Using conda:**
-```bash
-conda create -n myenv python=3.10
-conda activate myenv
-pip install biocypher==0.10.1
-```
-
-
+You also need to install Jupyter into your environment, i.e. `pip install jupyter`, if later you want to explore the sample data in a Jupyter notebook.
 
 ### Setup Neo4j
 
 In this section, we will create a Neo4j instance to use later in the tutorial. It is important to set this up now.
 
-a. Execute Neo4j Desktop, if this the first time you should see a window like this one.
+1. Execute Neo4j Desktop, if this the first time you should see a window like this one.
 <div align="center">
   <img src="./assets/neo4j_desktop_homepage.png" alt="Protein interaction graph (model 1)" width="800"/>
   <br>
   <em>Figure 1. Neo4j Desktop start screen.</em>
 </div>
 
-b. Create a new instance in Neo4j. For this tutorial, name it `neo4j-tutorial-instance` and choose a password you can remember.
+2. Create a new instance in Neo4j. For this tutorial, name it `neo4j-tutorial-instance` and choose a password you can remember.
 
 <div align="center">
   <img src="./assets/neo4j_instance_creation.png" alt="Protein interaction graph (model 1)" width="800"/>
@@ -125,14 +108,14 @@ b. Create a new instance in Neo4j. For this tutorial, name it `neo4j-tutorial-in
   <em>Figure 2. Create Instance window. This may vary depending on your Neo4j version.</em>
 </div>
 
-c. Access details in the option *Overview*.
+3. Access details in the option *Overview*.
 <div align="center">
   <img src="./assets/neo4j_overview_option.png" alt="Protein interaction graph (model 1)" width="800"/>
   <br>
   <em>Figure 3. *Overview* option to check details related to your Neo4j instance.</em>
 </div>
 
-d. Save the path to your Neo4j instance, we are going to use this path later in this tutorial.
+4. Save the path to your Neo4j instance, we are going to use this path later in this tutorial.
 
 <div align="center">
   <img src="./assets/neo4j_folder_details.png" alt="Protein interaction graph (model 1)" width="800"/>
@@ -144,7 +127,7 @@ d. Save the path to your Neo4j instance, we are going to use this path later in 
 
 ## Section 1. Exploratory Data Analysis
 
-For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/records/16902349) that contains information about the interaction between proteins. 
+For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/records/16902349) that contains information about the interaction between proteins. The dataset is contained in a `tsv` file, similar to a `csv` file but using tabs instead of commas as delimiters.
 
 - First, download the dataset:
 
@@ -158,7 +141,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     ```bash
     mkdir -p ./notebooks/
     ```
-- Create and run either a Python file or a Jupyter notebook (if Jupyter is installed in your environment) containing the following code.
+- Create and run either a Python file or a Jupyter notebook containing the following code.
 
     **File: `notebooks/eda_synthetic_data.py`**
 
@@ -207,7 +190,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
 >
 > b. How many interactions exist in our dataset?
 >
-> c. Some columns contain boolean values represented as 1s and 0s. Can you detect which ones?
+> c. Some columns contain boolean values represented as "1" and "0". Can you detect which ones?
 
 <!-- > ✅ **Answer:** 
 > a. Number of unique proteins: 15.
@@ -218,7 +201,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
 <summary>✅ <strong>Answer:</strong> </strong></summary>
 a. Number of unique proteins: 15.
 
-b. Number of unique interactions: 22.
+b. Number of unique interactions: 23.
 
 c. `is_directed`, `is_stimulation`, `is_inhibition`, `consensus_direction`, `consensus_stimulation`,`consensus_inhibition`.
 </details>
@@ -227,7 +210,7 @@ c. `is_directed`, `is_stimulation`, `is_inhibition`, `consensus_direction`, `con
 ## Section 2. Graph Modeling
 ### Graph Modeling
 
-By looking at the TSV file, we can see that there are two columns called `source` and `target`, which represent proteins. This means that each row represents an interaction between a source protein and a target protein. For now, our graph could look like this.
+By looking at the `tsv` file, we can see that there are two columns called `source` and `target`, which represent proteins. This means that each row represents an interaction between a source protein and a target protein. For now, our graph could look like this.
 
 <div align="center">
   <img src="./assets/model_graph_1.png" alt="Protein interaction graph (model 1)" width="400"/>
@@ -266,8 +249,11 @@ Remaining columns in the table describe properties of these protein-protein inte
 - `is_stimulation`
 - `is_inhibition`
 - `consensus direction`
+- `consensus stimulation`
 - `consensus inhibition`
 - `type`
+
+It is these protein-protein interactions that form the **edges** in the graph. Here, `is_directed`, `is_stimulation`, and `is_inhibition` describe properties that characterize each `type`, while `consensus direction`, `consensus stimulation`, and `consensus inhibition` describe if the properties are described mutually for source and target.
 
 We are ready to model our second version of our graph. It is like follows:
 
@@ -298,26 +284,26 @@ If you include all the nodes and edges from your TSV file, your sketch should lo
 ```mermaid
 graph LR
     SOD1((SOD1))   -- binding --> EGFR((EGFR))
-    CDK1((CDK1))   -- activation --> P53((P53))
+    CDK1((CDK1))   -- activation --> TP53((TP53))
     MYC((MYC))     -- phosporylation --> GAPDH((GAPDH))
     MTOR((MTOR))   -- ubiquitination --> NFKB1((NFKB1))
     NFKB1((NFKB1)) -- activation --> CDK1((CDK1))
     MAPK1((MAPK1)) -- ubiquitination --> HSP90((HSP90))
-    P53((P53))     -- ubiquitination --> CREB1((CREB1))
+    TP53((TP53))     -- ubiquitination --> CREB1((CREB1))
     HSP90((HSP90)) -- activation --> APP((APP))
     HSP90((HSP90)) -- ubiquitination --> RHOA((RHOA))
-    SOD1((SOD1))   -- inhibition --> P53((P53))
+    SOD1((SOD1))   -- inhibition --> TP53((TP53))
     AKT1((AKT1))   -- ubiquitination --> HSP90((HSP90))
     HSP90((HSP90)) -- ubiquitination --> MYC((MYC))
     MAPK1((MAPK1)) -- ubiquitination --> BRCA1((BRCA1))
     NFKB1((NFKB1)) -- inhibition --> RHOA((RHOA))
     NFKB1((NFKB1)) -- phosphorylation --> APP((APP))
     HSP90((HSP90)) -- binding --> GAPDH((GAPDH))
-    GAPDH((GAPDH)) -- activation --> P53((P53))
-    AKT1((AKT1))   -- phosphorylation --> P53((P53))
+    GAPDH((GAPDH)) -- activation --> TP53((TP53))
+    AKT1((AKT1))   -- phosphorylation --> TP53((TP53))
     GAPDH((GAPDH)) -- activation --> APP((APP))
-    P53((P53))     -- activation --> MAPK1((MAPK1))
-    P53((P53))     -- ubiquitination --> CREB1((CREB1))
+    TP53((TP53))     -- activation --> MAPK1((MAPK1))
+    TP53((TP53))     -- ubiquitination --> CREB1((CREB1))
     MYC((MYC))     -- phosphorylation --> GAPDH((GAPDH))
     EGFR((EGFR))   -- binding --> SOD1((SOD1))
 
@@ -326,7 +312,7 @@ graph LR
 
 ## Section 3. Graph creation with BioCypher
 
-We aim to create a knowledge graph using the data we found in the TSV file. Let's recap our exercise:
+We aim to create a knowledge graph using the data we found in the `tsv`` file. Let's recap our exercise:
 
 - Create a **graph** with the following characteristics:
   - One node type: `Protein`.
@@ -341,6 +327,7 @@ We aim to create a knowledge graph using the data we found in the TSV file. Let'
   - *is_stimulation*
   - *is_inhibition*
   - *consensus_direction*
+  - *consensus_stimulation*
   - *consensus_inhibition*
 
 - We must export the knowledge graph to Neo4j.
@@ -392,10 +379,12 @@ protein protein interaction:
     represented_as: edge
     input_label: protein_protein_interaction
     properties:
+        is_directed: bool
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
         consensus_stimulation: bool
+        consensus_inhibition: bool
         
 #=========    INHERITED EDGES
 binding:
@@ -419,12 +408,12 @@ The `protein` top-level key in the YAML snippet identifies our entity and connec
 
 For more information about which other keywords you can use to configure your nodes in the schema file consult [Fields reference](https://biocypher.org/BioCypher/reference/schema-config/#fields-reference).
 
-TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model
+TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model +1 vote for this from Inga
 
 
 ##### Edges (relationships)
 
-As shown in [Figure 7](#graph-modeling), each edge has the same set of properties (`is_directed`, `is_consensus`, etc.). At this stage, we have two options for defining the edges:
+As shown in [Figure 7](#graph-modeling), each edge has the same set of properties (`is_directed`, `consensus_direction`, etc.). At this stage, we have two options for defining the edges:
 
 - Option 1: Create each edge and explicitly define the same set of property fields for every edge.
 
@@ -438,20 +427,24 @@ activation:
     represented_as: edge
     input_label: protein_protein_interaction
     properties:
+        is_directed: bool
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
         consensus_stimulation: bool
+        consensus_inhibition: bool
 
 binding:
     is_a: pairwise molecular interaction
     represented_as: edge
     input_label: protein_protein_interaction
     properties:
+        is_directed: bool
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
         consensus_stimulation: bool
+        consensus_inhibition: bool
 
 # ...rest of schema_config.yaml omitted for brevity...
 ```
@@ -469,10 +462,12 @@ protein protein interaction:
     represented_as: edge
     input_label: protein_protein_interaction
     properties:
+        is_directed: bool
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
         consensus_stimulation: bool
+        consensus_inhibition: bool
         
 #====   INHERITED EDGES
 activation:
@@ -547,10 +542,12 @@ protein protein interaction:
     represented_as: edge
     input_label: protein_protein_interaction
     properties:
+        is_directed: bool
         is_stimulation: bool
         is_inhibition: bool
         consensus_direction: bool
-        consensus_stimulation: boo
+        consensus_stimulation: bool
+        consensus_inhibition: bool
         
 #====   INHERITED EDGES
 activation:
@@ -610,7 +607,7 @@ neo4j:
   array_delimiter: '|'
   skip_duplicate_nodes: true
   skip_bad_relationships: true
-  import_call_bin_prefix: <path to your Neo4j instance>/bin/
+  import_call_bin_prefix: <path to your Neo4j instance from Setup Neo4j section>/bin/
 ```
 
 The first block is the BioCypher Core Settings, which starts with `biocypher:`
@@ -633,6 +630,7 @@ The second block is the Database Management System Settings, which starts with t
 | `skip_bad_relationships` | `true`            | Whether to skip relationships with missing endpoints |
 | `import_call_bin_prefix` | i.e., `/usr/bin/` | Prefix for the import command binary (optional)      |
 
+The `import_call_bin_prefix` is the path to your Neo4j instance that you looked up in [section Setup Neo4j](#setup-neo4j) together with the prefix `/bin`.
 
 The default configuration that comes with BioCypher and more configuration parameters for the Settings are listed in [BioCypher Configuration Reference](https://biocypher.org/BioCypher/reference/biocypher-config/).
 
@@ -723,6 +721,7 @@ class AdapterProteinProteinEdgeField(Enum):
 
     INTERACTION_TYPE = "interaction_type"
     INTERACTION_SOURCE = "interaction_source"
+    IS_DIRECTED = "is_directed"
     IS_STIMULATION = "is_stimulation"
     IS_INHIBITION = "is_inhibition"
     CONSENSUS_DIRECTION = "consensus_direction"
@@ -730,9 +729,9 @@ class AdapterProteinProteinEdgeField(Enum):
     CONSENSUS_INHIBITION = "consensus_inhibition"
 ```
 
-Now you are ready to write functions that load the data into a dataframe and extract nodes and edges. Before doing this you need to understand that BioCypher expect a certatin format. Let's discuss this:
+Now you are ready to write functions that load the data into a dataframe and extract nodes and edges. Before doing this you need to understand that BioCypher expect a certain format. Let's discuss this:
 
-BioCypher expects each node or edge being a tuple (datastructure).
+BioCypher expects each node or edge being a tuple (datastructure) as explained in the next section.
 
 #### Nodes Convention
 BioCypher expects each node being a **3-element tuple**, with elements in the following order:
@@ -757,7 +756,7 @@ For example:
 #### Edges Convention
 BioCypher expects each edge being a **5-element tuple**, with elements in the following order:
 1. [*optional*]  `ID`: this is a unique identifier for the edge (i.e., `P53CREB1`)
-2. [*mandatory*]  `SOURCE`: this is the ID for the source node (i.e, `P53`)
+2. [*mandatory*]  `SOURCE`: this is the ID for the source node (i.e, `TP53`)
 3. [*mandatory*]  `TARGET`: this is the ID for the source node (i.e, `CREB1`)
 4. [*mandatory*]  `LABEL`: this is a namespace for the edge (i.e, `activation`, `inhibition`)
 5. [*optional*] `PROPERTIES`: this is dictionary that contains properties for the edge.
@@ -765,13 +764,13 @@ BioCypher expects each edge being a **5-element tuple**, with elements in the fo
 ```python
 #  ✅ This is a 5-element tuple for BioCypher
 #1   2      3        4                 5
-("", "P53", "CREB1", "ubiquitination", {"is_directed": True})
+("", "TP53", "CREB1", "ubiquitination", {"is_directed": True})
 ```
 
 ```python
 # ✖️ This is NOT the 5-element tuple format that BioCypher expects. Can you explain why?
 #1           2      3                 4              5      
-("P53CREB1", "P53", "ubiquitination", "is_directed", True)
+("P53CREB1", "TP53", "ubiquitination", "is_directed", True)
 ```
 
 Finally, write the functions that read the data as a DataFrame and override the functions to extract nodes and edges in the formats expected by BioCypher. This is illustrated in the next snippet.
@@ -799,7 +798,7 @@ def _read_tsv(self) -> pd.DataFrame:
     required_columns = [
         'source', 'target', 'source_genesymbol', 'target_genesymbol',
         'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
-        'is_stimulation', 'is_inhibition', 'consensus_direction',
+        'is_directed', 'is_stimulation', 'is_inhibition', 'consensus_direction',
         'consensus_stimulation', 'consensus_inhibition'
     ]
     missing = [col for col in required_columns if col not in df.columns]
@@ -875,6 +874,7 @@ def get_edges(self) -> 'Generator[tuple[str, str, str, str, dict], None, None]':
         type = row.type
 
         properties = {
+            'is_directed': row.is_directed,
             'is_stimulation': row.is_stimulation,
             'is_inhibition': row.is_inhibition,
             'consensus_direction': row.consensus_direction,
@@ -954,6 +954,7 @@ class AdapterProteinProteinEdgeField(Enum):
 
     INTERACTION_TYPE = "interaction_type"
     INTERACTION_SOURCE = "interaction_source"
+    IS_DIRECTED = "is_directed"
     IS_STIMULATION = "is_stimulation"
     IS_INHIBITION = "is_inhibition"
     CONSENSUS_DIRECTION = "consensus_direction"
@@ -988,7 +989,7 @@ class Adapter:
         required_columns = [
             'source', 'target', 'source_genesymbol', 'target_genesymbol',
             'ncbi_tax_id_source', 'ncbi_tax_id_target', 'type',
-            'is_stimulation', 'is_inhibition', 'consensus_direction',
+            'is_directed', 'is_stimulation', 'is_inhibition', 'consensus_direction',
             'consensus_stimulation', 'consensus_inhibition'
         ]
         missing = [col for col in required_columns if col not in df.columns]
@@ -1064,6 +1065,7 @@ class Adapter:
             type = row.type
 
             properties = {
+                'is_directed': row.is_directed,
                 'is_stimulation': row.is_stimulation,
                 'is_inhibition': row.is_inhibition,
                 'consensus_direction': row.consensus_direction,
@@ -1384,6 +1386,8 @@ INFO -- No missing labels in input.
 ```
 </details>
 
+Note that BioCypher creates logging information and output files in a subdirectory relative to where it is executed, `biocypher-log/biocyper-<TIMESTAMP>.log` and `biocypher-out/<TIMESTAMP>`. This allows you to look up details from the biocypher run and compare with the generated output.
+
 ## Section 4. Interacting with your graph using Neo4j
 
 ### Load the graph using an import script
@@ -1540,7 +1544,7 @@ IMPORT DONE in 1s 488ms.
 </details>
 
 ### Visualize the graph
-a. Connect to your instance and select the option *Query*.
+a. Connect to your instance by running Neo4j desktop again. Select your instance and click on "Connect" - the little arrow on the button allows you to expand a menu. Select the option *Query*.
 
 <div align="center">
   <img src="./assets/neo4j_explore_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
