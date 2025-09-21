@@ -32,13 +32,13 @@ By the end of this tutorial, you will be able to:
 
 > **Note:** Ensure you have the following prerequisites before continue with the tutorial.
 
-| Tool   | Version/Requirement | Installation Link                                  | Notes                     |
-| ------ | ------------------- | -------------------------------------------------- | ------------------------- |
-| Git    | Any                 | [Git Docs](https://git-scm.com/downloads)          | For version control       |
-| Neo4j  | >=1.6               | [Neo4j Desktop](https://neo4j.com/download/)       | For querying graphs       |
-| Poetry (optional) | 1.8.x    | [Poetry Docs](https://python-poetry.org/docs/1.8/) | For dependency management |
-| Python | >= 3.10             | [Python.org](https://www.python.org/downloads/)    | Required for BioCypher    |
-| Jupyter (optional) | Any     | [Jupter](https://jupyter.org/)                     | Required for exploring the sample data |
+| Tool               | Version/Requirement | Installation Link                                  | Notes                                  |
+| ------------------ | ------------------- | -------------------------------------------------- | -------------------------------------- |
+| Git                | Any                 | [Git Docs](https://git-scm.com/downloads)          | For version control                    |
+| Neo4j              | >=1.6               | [Neo4j Desktop](https://neo4j.com/download/)       | For querying graphs                    |
+| Poetry (optional)  | 1.8.x               | [Poetry Docs](https://python-poetry.org/docs/1.8/) | For dependency management              |
+| Python             | >= 3.10             | [Python.org](https://www.python.org/downloads/)    | Required for BioCypher                 |
+| Jupyter (optional) | Any                 | [Jupter](https://jupyter.org/)                     | Required for exploring the sample data |
 
 
 ## Setup
@@ -1014,7 +1014,7 @@ class Adapter:
             id = row.source
             input_label = "uniprot_protein"
 
-            properties = {<details>
+            properties = {
                 'genesymbol': row.source_genesymbol,
                 'ncbi_tax_id': row.ncbi_tax_id_source,
                 'entity_type': row.entity_type_source,
