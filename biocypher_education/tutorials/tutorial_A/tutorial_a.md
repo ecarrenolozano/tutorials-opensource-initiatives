@@ -1571,6 +1571,12 @@ Try the following queries:
 MATCH (a)-[r]->(b)
 RETURN a, r, b;
 ```
+Result:
+<div align="center">
+  <img src="./assets/neo4j_query_1.png" alt="Relationships in the graph" width="500"/>
+  <br>
+</div>
+
 
 2. Find all the nodes
 
@@ -1578,6 +1584,11 @@ RETURN a, r, b;
 MATCH (n)
 RETURN n;
 ```
+Result:
+<div align="center">
+  <img src="./assets/neo4j_query_2.png" alt="Nodes in the graph" width="500"/>
+  <br>
+</div>
 
 3. Find all nodes of a specific type(e.g. `Protein` in the following query)
 
@@ -1585,6 +1596,11 @@ RETURN n;
 MATCH (n:Protein)
 RETURN n;
 ```
+Result:
+<div align="center">
+  <img src="./assets/neo4j_query_3.png" alt="Protein odes in the graph" width="500"/>
+  <br>
+</div>
 
 4. Find all relationships of a specific type(e.g. `Binding` in the following query)
 
@@ -1592,6 +1608,12 @@ RETURN n;
 MATCH (a)-[r:Binding]->(b)
 RETURN a, r, b;
 ```
+Result:
+<div align="center">
+  <img src="./assets/neo4j_query_4.png" alt="Binding relationships in the graph" width="500"/>
+  <br>
+</div>
+
 
 5. Count relationships of a given type(e.g. `Binding` in the following query)
 
@@ -1599,6 +1621,11 @@ RETURN a, r, b;
 MATCH (a)-[r:Binding]->(b)
 RETURN COUNT(r) AS totalBindings;
 ```
+Result:
+<div align="center">
+  <img src="./assets/neo4j_query_5.png" alt="Count the number of binding relationships in the graph" width="300"/>
+  <br>
+</div>
 
 ---
 
