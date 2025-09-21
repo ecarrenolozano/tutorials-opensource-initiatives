@@ -175,7 +175,7 @@ For this tutorial we are going to use a [synthetic dataset](https://zenodo.org/r
     print("\n---- Describe Dataframe statistics")
     print(df.describe())
 
-    # Show unique protein names
+    # Count the unique number of proteins in each column
     print("\n---- Number of unique proteins per column.")
     print('Unique proteins in column protein_a:', df['source'].nunique())
     print('Unique proteins in column protein_b:', df['target'].nunique())
