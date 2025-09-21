@@ -408,8 +408,6 @@ The `protein` top-level key in the YAML snippet identifies our entity and connec
 
 For more information about which other keywords you can use to configure your nodes in the schema file consult [Fields reference](https://biocypher.org/BioCypher/reference/schema-config/#fields-reference).
 
-TODO: [Edwin] explain a little bit about how to express the ontological backbone Biolink model +1 vote for this from Inga
-
 
 ##### Edges (relationships)
 
@@ -507,6 +505,18 @@ The `activation:` top-level key in the YAML snippet identifies our edge entity.
 | `inherit_properties` | `true`                        | Indicates whether all properties defined in the base edge should be inherited.                        |
 | `represented_as`     | `edge`                        | Specifies that BioCypher will treat this entity (`activation`) as an edge.                            |
 | `input_label`        | `binding`                     | Specifies the expected edge label; edges without this label are ignored unless defined in the schema. |
+
+#### A comment about the connection between BioCypher and Ontologies
+
+In BioCypher, ontologies are integrated through the schema configuration file. This YAML file defines the structure of the graph by specifying which entities and relationships should be included. At the same time, it links those entities to the biomedical domain by aligning them with an ontological hierarchy. In this tutorial, we use the Biolink Model as the backbone of that hierarchy. The guiding principle is simple: only entities that are defined in the schema configuration **and** present in the input data are incorporated into the final knowledge graph.
+
+Figure 10 illustrates the Biolink Model and some of its components organized in a hierarchy. Notice that entities such as protein (nodes) and pairwise molecular interaction (edges) appear both in the schema configuration and in the ontology. This alignment ensures that BioCypher graphs are not only structured consistently but also grounded in standardized biomedical concepts. For a deeper exploration of ontologies in BioCypher, see our [ontology tutorial](https://biocypher.org/BioCypher/learn/tutorials/tutorial002_handling_ontologies/).
+
+<div align="center">
+  <img src="./assets/biolink_ontology.png" alt="" width="1000"/>
+  <br>
+  <em>Figure 10. The Biolink Model as an ontology backbone. On the right, <b>protein</b> is represented as an entity; on the left, <b>pairwise molecular interaction</b> is defined as an association. Together, these demonstrate how the schema anchors graph components to standardized biomedical concepts.</em>
+</div>
 
 
 > 📝 **Exercise:** 
@@ -670,7 +680,7 @@ neo4j:
 <div align="center">
   <img src="./assets/biocypher_section_adapter.png" alt="BioCypher Adapter" width="1000"/>
   <br>
-  <em>Figure 10. Adapter creation in the BioCypher pipeline.</em>
+  <em>Figure 11. Adapter creation in the BioCypher pipeline.</em>
 </div>
 
 **Rationale:** An adapter allows you to efficiently transform, integrate, combine data from different sources ensuring compatibility with BioCypher's schema and streamlining the import process.
@@ -1132,7 +1142,7 @@ class Adapter:
 <div align="center">
   <img src="./assets/biocypher_section_script.png" alt="Protein interaction graph (model 3)" width="1000"/>
   <br>
-  <em>Figure 11. BioCypher pipeline</em>
+  <em>Figure 12. BioCypher pipeline</em>
 </div>
 
 **Rationale:** Integrating all steps—downloading the dataset, loading the data, extracting nodes and edges, and exporting graph assets—into a single script streamlines the entire process. This approach makes it easier to build and manage the knowledge graph pipeline efficiently and reproducibly.
@@ -1549,7 +1559,7 @@ a. Connect to your instance by running Neo4j desktop again. Select your instance
 <div align="center">
   <img src="./assets/neo4j_explore_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 12. Query and Explore options to run on a Neo4j instance.</em>
+  <em>Figure 13. Query and Explore options to run on a Neo4j instance.</em>
 </div>
 
 b. Now, click on the asterisk under the Relationships category. You now should see your graph! Compare to the sketch you did previosly in this tutorial
@@ -1558,7 +1568,7 @@ b. Now, click on the asterisk under the Relationships category. You now should s
 <div align="center">
   <img src="./assets/neo4j_final_graph.png" alt="Protein interaction graph (model 1)" width="1000"/>
   <br>
-  <em>Figure 13. Neo4j graph based on our data.</em>
+  <em>Figure 14. Neo4j graph based on our data.</em>
 </div>
 
 
